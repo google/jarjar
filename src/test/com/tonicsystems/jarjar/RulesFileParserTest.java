@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2007 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,21 +16,19 @@
 
 package com.tonicsystems.jarjar;
 
-import junit.framework.*;
 import java.io.*;
+import junit.framework.*;
 
-public class RulesFileParserTest
-extends TestCase
-{
-    public void testSimple() throws Exception {
-        // TODO
-    }
+public class RulesFileParserTest extends TestCase {
+  public void testSimple() throws Exception {
+    // TODO
+  }
 
-    public RulesFileParserTest(String name) {
-        super(name);
-    }
+  public RulesFileParserTest(String name) {
+    super(name);
+  }
 
-    public static Test suite() {
-        return new TestSuite(RulesFileParserTest.class);
-    }
+  public static Test suite() {
+    return new TestSuite(RulesFileParserTest.class);
+  }
 }

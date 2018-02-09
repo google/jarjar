@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2007 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,28 +17,27 @@
 package com.tonicsystems.jarjar;
 
 import com.tonicsystems.jarjar.util.*;
-import junit.framework.*;
 import java.util.*;
+import junit.framework.*;
 import org.objectweb.asm.ClassReader;
 
-public class GenericsTest
-extends TestCase
-{
-    public void testTransform() throws Exception {
-         Rule rule = new Rule();
-         rule.setPattern("java.lang.String");
-         rule.setResult("com.tonicsystems.String");
-         RemappingClassTransformer t = new RemappingClassTransformer(new PackageRemapper(Arrays.asList(rule), false));
-         t.setTarget(new EmptyClassVisitor());
-         ClassReader reader = new ClassReader(getClass().getResourceAsStream("/Generics.class"));
-         reader.accept(t, 0);
-    }
+public class GenericsTest extends TestCase {
+  public void testTransform() throws Exception {
+    Rule rule = new Rule();
+    rule.setPattern("java.lang.String");
+    rule.setResult("com.tonicsystems.String");
+    RemappingClassTransformer t =
+        new RemappingClassTransformer(new PackageRemapper(Arrays.asList(rule), false));
+    t.setTarget(new EmptyClassVisitor());
+    ClassReader reader = new ClassReader(getClass().getResourceAsStream("/Generics.class"));
+    reader.accept(t, 0);
+  }
 
-    public GenericsTest(String name) {
-        super(name);
-    }
+  public GenericsTest(String name) {
+    super(name);
+  }
 
-    public static Test suite() {
-        return new TestSuite(GenericsTest.class);
-    }
+  public static Test suite() {
+    return new TestSuite(GenericsTest.class);
+  }
 }

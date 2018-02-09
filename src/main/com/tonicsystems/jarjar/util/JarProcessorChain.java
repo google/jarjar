@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2007 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,31 +18,25 @@ package com.tonicsystems.jarjar.util;
 
 import java.io.IOException;
 
-public class JarProcessorChain implements JarProcessor
-{
-    private final JarProcessor[] chain;
+public class JarProcessorChain implements JarProcessor {
+  private final JarProcessor[] chain;
 
-    public JarProcessorChain(JarProcessor[] chain)
-    {
-        this.chain = chain.clone();
+  public JarProcessorChain(JarProcessor[] chain) {
+    this.chain = chain.clone();
+  }
+
+  /**
+   * @param struct
+   * @return <code>true</code> if the entry has run the complete chain
+   * @throws IOException
+   */
+  public boolean process(EntryStruct struct) throws IOException {
+
+    for (JarProcessor aChain : chain) {
+      if (!aChain.process(struct)) {
+        return false;
+      }
     }
-
-    /**
-     * @param struct
-     * @return <code>true</code> if the entry has run the complete chain
-     * @throws IOException
-     */
-    public boolean process(EntryStruct struct) throws IOException
-    {
-
-        for (JarProcessor aChain : chain)
-        {
-            if (!aChain.process(struct))
-            {
-                return false;
-            }
-        }
-        return true;
-    }
+    return true;
+  }
 }
-  

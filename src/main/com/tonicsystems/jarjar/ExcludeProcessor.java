@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2007 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,21 +20,20 @@ import com.tonicsystems.jarjar.util.*;
 import java.io.IOException;
 import java.util.*;
 
-class ExcludeProcessor implements JarProcessor
-{
-    private final Set<String> excludes;
-    private final boolean verbose;
+class ExcludeProcessor implements JarProcessor {
+  private final Set<String> excludes;
+  private final boolean verbose;
 
-    public ExcludeProcessor(Set<String> excludes, boolean verbose) {
-        this.excludes = excludes;
-        this.verbose = verbose;
-    }
+  public ExcludeProcessor(Set<String> excludes, boolean verbose) {
+    this.excludes = excludes;
+    this.verbose = verbose;
+  }
 
-    public boolean process(EntryStruct struct) throws IOException {
-        boolean toKeep = !excludes.contains(struct.name);
-        if (verbose && !toKeep)
-            System.err.println("Excluding " + struct.name);
-        return toKeep;
+  public boolean process(EntryStruct struct) throws IOException {
+    boolean toKeep = !excludes.contains(struct.name);
+    if (verbose && !toKeep) {
+      System.err.println("Excluding " + struct.name);
     }
+    return toKeep;
+  }
 }
-    

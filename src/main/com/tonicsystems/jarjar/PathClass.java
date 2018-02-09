@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2007 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,25 +16,24 @@
 
 package com.tonicsystems.jarjar;
 
-public class PathClass
-{
-    private String classPath;
-    private String className;
-    
-    public PathClass(String classPath, String className) {
-        this.classPath = classPath;
-        this.className = className;
-    }
+public class PathClass {
+  private String classPath;
+  private String className;
 
-    public String getClassPath() {
-        return classPath;
-    }
+  public PathClass(String classPath, String className) {
+    this.classPath = classPath;
+    this.className = className;
+  }
 
-    public String getClassName() {
-        return className;
-    }
+  public String getClassPath() {
+    return classPath;
+  }
 
-    public String toString() {
-        return classPath + "!" + className;
-    }
+  public String getClassName() {
+    return className;
+  }
+
+  public String toString() {
+    return classPath + "!" + className;
+  }
 }

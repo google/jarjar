@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2007 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -34,12 +34,11 @@ public class Main {
   }
 
   private static String readIntoString(InputStream in) throws IOException {
-      StringBuilder sb = new StringBuilder();
-      BufferedReader r = new BufferedReader(new InputStreamReader(in, "UTF-8"));
-      String line = null;
-      while ((line = r.readLine()) != null)
-          sb.append(line).append(LINE_SEPARATOR);
-      return sb.toString();
+    StringBuilder sb = new StringBuilder();
+    BufferedReader r = new BufferedReader(new InputStreamReader(in, "UTF-8"));
+    String line = null;
+    while ((line = r.readLine()) != null) sb.append(line).append(LINE_SEPARATOR);
+    return sb.toString();
   }
 
   private boolean verbose;

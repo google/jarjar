@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2007 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,19 +16,17 @@
 
 package com.tonicsystems.jarjar.util;
 
+import com.tonicsystems.jarjar.EmptyClassVisitor;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.commons.Remapper;
 import org.objectweb.asm.commons.RemappingClassAdapter;
 
-import com.tonicsystems.jarjar.EmptyClassVisitor;
+public class RemappingClassTransformer extends RemappingClassAdapter {
+  public RemappingClassTransformer(Remapper pr) {
+    super(new EmptyClassVisitor(), pr);
+  }
 
-public class RemappingClassTransformer extends RemappingClassAdapter
-{
-    public RemappingClassTransformer(Remapper pr) {
-        super(new EmptyClassVisitor(), pr);
-    }
-        
-    public void setTarget(ClassVisitor target) {
-        cv = target;
-    }
+  public void setTarget(ClassVisitor target) {
+    cv = target;
+  }
 }

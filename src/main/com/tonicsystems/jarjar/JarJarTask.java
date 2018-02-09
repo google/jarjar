@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2007 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,45 +17,47 @@
 package com.tonicsystems.jarjar;
 
 import com.tonicsystems.jarjar.util.*;
-import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import org.apache.tools.ant.BuildException;
 
-public class JarJarTask extends AntJarProcessor
-{
-    private List<PatternElement> patterns = new ArrayList<PatternElement>();
+public class JarJarTask extends AntJarProcessor {
+  private List<PatternElement> patterns = new ArrayList<PatternElement>();
 
-    public void addConfiguredRule(Rule rule) {
-        if (rule.getPattern() == null || rule.getResult() == null)
-            throw new IllegalArgumentException("The <rule> element requires both \"pattern\" and \"result\" attributes.");
-        patterns.add(rule);
+  public void addConfiguredRule(Rule rule) {
+    if (rule.getPattern() == null || rule.getResult() == null) {
+      throw new IllegalArgumentException(
+          "The <rule> element requires both \"pattern\" and \"result\" attributes.");
     }
+    patterns.add(rule);
+  }
 
-    public void addConfiguredZap(Zap zap) {
-        if (zap.getPattern() == null)
-            throw new IllegalArgumentException("The <zap> element requires a \"pattern\" attribute.");
-        patterns.add(zap);
+  public void addConfiguredZap(Zap zap) {
+    if (zap.getPattern() == null) {
+      throw new IllegalArgumentException("The <zap> element requires a \"pattern\" attribute.");
     }
+    patterns.add(zap);
+  }
 
-    public void addConfiguredKeep(Keep keep) {
-        if (keep.getPattern() == null)
-            throw new IllegalArgumentException("The <keep> element requires a \"pattern\" attribute.");
-        patterns.add(keep);
+  public void addConfiguredKeep(Keep keep) {
+    if (keep.getPattern() == null) {
+      throw new IllegalArgumentException("The <keep> element requires a \"pattern\" attribute.");
     }
+    patterns.add(keep);
+  }
 
-    public void execute() throws BuildException {
-        MainProcessor proc = new MainProcessor(patterns, verbose, false);
-        execute(proc);
-        try {
-            proc.strip(getDestFile());
-        } catch (IOException e) {
-            throw new BuildException(e);
-        }
+  public void execute() throws BuildException {
+    MainProcessor proc = new MainProcessor(patterns, verbose, false);
+    execute(proc);
+    try {
+      proc.strip(getDestFile());
+    } catch (IOException e) {
+      throw new BuildException(e);
     }
+  }
 
-    protected void cleanHelper() {
-        super.cleanHelper();
-        patterns.clear();
-    }
+  protected void cleanHelper() {
+    super.cleanHelper();
+    patterns.clear();
+  }
 }

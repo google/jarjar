@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2007 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,113 +16,121 @@
 
 package com.tonicsystems.jarjar;
 
-import org.objectweb.asm.*;
-import org.objectweb.asm.commons.*;
 import java.util.*;
 import java.util.regex.Pattern;
+import org.objectweb.asm.*;
+import org.objectweb.asm.commons.*;
 
-class PackageRemapper extends Remapper
-{
-    private static final String RESOURCE_SUFFIX = "RESOURCE";
-    
-    private static final Pattern ARRAY_FOR_NAME_PATTERN
-        = Pattern.compile("\\[L[\\p{javaJavaIdentifierPart}\\.]+?;");
+class PackageRemapper extends Remapper {
+  private static final String RESOURCE_SUFFIX = "RESOURCE";
 
-    private final List<Wildcard> wildcards;
-    private final Map<String, String> typeCache = new HashMap<String, String>();
-    private final Map<String, String> pathCache = new HashMap<String, String>();
-    private final Map<Object, String> valueCache = new HashMap<Object, String>();
-    private final boolean verbose;
+  private static final Pattern ARRAY_FOR_NAME_PATTERN =
+      Pattern.compile("\\[L[\\p{javaJavaIdentifierPart}\\.]+?;");
 
-    public PackageRemapper(List<Rule> ruleList, boolean verbose) {
-        this.verbose = verbose;
-        wildcards = PatternElement.createWildcards(ruleList);
+  private final List<Wildcard> wildcards;
+  private final Map<String, String> typeCache = new HashMap<String, String>();
+  private final Map<String, String> pathCache = new HashMap<String, String>();
+  private final Map<Object, String> valueCache = new HashMap<Object, String>();
+  private final boolean verbose;
+
+  public PackageRemapper(List<Rule> ruleList, boolean verbose) {
+    this.verbose = verbose;
+    wildcards = PatternElement.createWildcards(ruleList);
+  }
+
+  // also used by KeepProcessor
+  static boolean isArrayForName(String value) {
+    return ARRAY_FOR_NAME_PATTERN.matcher(value).matches();
+  }
+
+  public String map(String key) {
+    String s = typeCache.get(key);
+    if (s == null) {
+      s = replaceHelper(key);
+      if (key.equals(s)) {
+        s = null;
+      }
+      typeCache.put(key, s);
     }
+    return s;
+  }
 
-    // also used by KeepProcessor
-    static boolean isArrayForName(String value) {
-      return ARRAY_FOR_NAME_PATTERN.matcher(value).matches();
+  public String mapPath(String path) {
+    String s = pathCache.get(path);
+    if (s == null) {
+      s = path;
+      int slash = s.lastIndexOf('/');
+      String end;
+      if (slash < 0) {
+        end = s;
+        s = RESOURCE_SUFFIX;
+      } else {
+        end = s.substring(slash + 1);
+        s = s.substring(0, slash + 1) + RESOURCE_SUFFIX;
+      }
+      boolean absolute = s.startsWith("/");
+      if (absolute) {
+        s = s.substring(1);
+      }
+
+      s = replaceHelper(s);
+
+      if (absolute) {
+        s = "/" + s;
+      }
+      if (s.indexOf(RESOURCE_SUFFIX) < 0) {
+        return path;
+      }
+      s = s.substring(0, s.length() - RESOURCE_SUFFIX.length()) + end;
+      pathCache.put(path, s);
     }
+    return s;
+  }
 
-    public String map(String key) {
-        String s = typeCache.get(key);
-        if (s == null) {
-            s = replaceHelper(key);
-            if (key.equals(s))
-                s = null;
-            typeCache.put(key, s);
-        }
-        return s;
-    }
-
-    public String mapPath(String path) {
-        String s = pathCache.get(path);
-        if (s == null) {
-            s = path;
-            int slash = s.lastIndexOf('/');
-            String end;
-            if (slash < 0) {
-                end = s;
-                s = RESOURCE_SUFFIX;
-            } else {
-                end = s.substring(slash + 1);
-                s = s.substring(0, slash + 1) + RESOURCE_SUFFIX;
-            }
-            boolean absolute = s.startsWith("/");
-            if (absolute) s = s.substring(1);
-            
-            s = replaceHelper(s);
-            
-            if (absolute) s = "/" + s;
-            if (s.indexOf(RESOURCE_SUFFIX) < 0)
-              return path;
-            s = s.substring(0, s.length() - RESOURCE_SUFFIX.length()) + end;
-            pathCache.put(path, s);
-        }
-        return s;
-    }
-
-    public Object mapValue(Object value) {
-        if (value instanceof String) {
-            String s = valueCache.get(value);
-            if (s == null) {
-                s = (String)value;
-                if (isArrayForName(s)) {
-                    String desc1 = s.replace('.', '/');
-                    String desc2 = mapDesc(desc1);
-                    if (!desc2.equals(desc1))
-                        return desc2.replace('/', '.');
-                } else {
-                    s = mapPath(s);
-                    if (s.equals(value)) {
-                        boolean hasDot = s.indexOf('.') >= 0;
-                        boolean hasSlash = s.indexOf('/') >= 0;
-                        if (!(hasDot && hasSlash)) {
-                            if (hasDot) {
-                                s = replaceHelper(s.replace('.', '/')).replace('/', '.');
-                            } else {
-                                s = replaceHelper(s);
-                            }
-                        }
-                    }
-                }
-                valueCache.put(value, s);
-            }
-            // TODO: add back class name to verbose message
-            if (verbose && !s.equals(value))
-                System.err.println("Changed \"" + value + "\" -> \"" + s + "\"");
-            return s;
+  public Object mapValue(Object value) {
+    if (value instanceof String) {
+      String s = valueCache.get(value);
+      if (s == null) {
+        s = (String) value;
+        if (isArrayForName(s)) {
+          String desc1 = s.replace('.', '/');
+          String desc2 = mapDesc(desc1);
+          if (!desc2.equals(desc1)) {
+            return desc2.replace('/', '.');
+          }
         } else {
-            return super.mapValue(value);
+          s = mapPath(s);
+          if (s.equals(value)) {
+            boolean hasDot = s.indexOf('.') >= 0;
+            boolean hasSlash = s.indexOf('/') >= 0;
+            if (!(hasDot && hasSlash)) {
+              if (hasDot) {
+                s = replaceHelper(s.replace('.', '/')).replace('/', '.');
+              } else {
+                s = replaceHelper(s);
+              }
+            }
+          }
         }
+        valueCache.put(value, s);
+      }
+      // TODO: add back class name to verbose message
+      if (verbose && !s.equals(value)) {
+        System.err.println("Changed \"" + value + "\" -> \"" + s + "\"");
+      }
+      return s;
+    } else {
+      return super.mapValue(value);
     }
+  }
 
-    private String replaceHelper(String value) {
-        for (Wildcard wildcard : wildcards) {
-            String test = wildcard.replace(value);
-            if (test != null)
-                return test;
-        }
-        return value;
+  private String replaceHelper(String value) {
+    for (Wildcard wildcard : wildcards) {
+      String test = wildcard.replace(value);
+      if (test != null) {
+        return test;
+      }
     }
+    return value;
+  }
 }

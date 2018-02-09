@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2008 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,11 +16,13 @@
 
 package com.tonicsystems.jarjar.util;
 
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 public interface ClassPathEntry {
   String getSource() throws IOException;
+
   String getName();
+
   InputStream openStream() throws IOException;
 }

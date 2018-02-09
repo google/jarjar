@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2007 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,28 +20,28 @@ import com.tonicsystems.jarjar.util.*;
 import java.io.IOException;
 import java.util.*;
 
-class ZapProcessor implements JarProcessor
-{
-    private List<Wildcard> wildcards;
+class ZapProcessor implements JarProcessor {
+  private List<Wildcard> wildcards;
 
-    public ZapProcessor(List<Zap> zapList) {
-        wildcards = PatternElement.createWildcards(zapList);
+  public ZapProcessor(List<Zap> zapList) {
+    wildcards = PatternElement.createWildcards(zapList);
+  }
+
+  public boolean process(EntryStruct struct) throws IOException {
+    String name = struct.name;
+    if (name.endsWith(".class")) {
+      return !zap(name.substring(0, name.length() - 6));
     }
+    return true;
+  }
 
-    public boolean process(EntryStruct struct) throws IOException {
-        String name = struct.name;
-        if (name.endsWith(".class"))
-            return !zap(name.substring(0, name.length() - 6));
+  private boolean zap(String desc) {
+    // TODO: optimize
+    for (Wildcard wildcard : wildcards) {
+      if (wildcard.matches(desc)) {
         return true;
+      }
     }
-    
-    private boolean zap(String desc) {
-        // TODO: optimize
-        for (Wildcard wildcard : wildcards) {
-            if (wildcard.matches(desc))
-                return true;
-        }
-        return false;
-    }
+    return false;
+  }
 }
-    

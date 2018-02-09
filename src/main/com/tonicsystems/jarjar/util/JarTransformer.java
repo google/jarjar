@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2007 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,27 +21,26 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 
-abstract public class JarTransformer implements JarProcessor
-{
-    public boolean process(EntryStruct struct) throws IOException {
-        if (struct.name.endsWith(".class")) {
-            ClassReader reader;
-            try {
-                reader = new ClassReader(struct.data);
-            } catch (Exception e) {
-                return true; // TODO?
-            }
-            GetNameClassWriter w = new GetNameClassWriter(ClassWriter.COMPUTE_MAXS);
-            reader.accept(transform(w), ClassReader.EXPAND_FRAMES);
-            struct.data = w.toByteArray();
-            struct.name = pathFromName(w.getClassName());
-        }
-        return true;
+public abstract class JarTransformer implements JarProcessor {
+  public boolean process(EntryStruct struct) throws IOException {
+    if (struct.name.endsWith(".class")) {
+      ClassReader reader;
+      try {
+        reader = new ClassReader(struct.data);
+      } catch (Exception e) {
+        return true; // TODO?
+      }
+      GetNameClassWriter w = new GetNameClassWriter(ClassWriter.COMPUTE_MAXS);
+      reader.accept(transform(w), ClassReader.EXPAND_FRAMES);
+      struct.data = w.toByteArray();
+      struct.name = pathFromName(w.getClassName());
     }
+    return true;
+  }
 
-    abstract protected ClassVisitor transform(ClassVisitor v);
+  protected abstract ClassVisitor transform(ClassVisitor v);
 
-    private static String pathFromName(String className) {
-        return className.replace('.', '/') + ".class";
-    }
+  private static String pathFromName(String className) {
+    return className.replace('.', '/') + ".class";
+  }
 }

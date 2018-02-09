@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2007 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,44 +16,41 @@
 
 package com.tonicsystems.jarjar;
 
+import java.util.Collections;
 import junit.framework.*;
 
-import java.util.Collections;
+public class PackageRemapperTest extends TestCase {
+  protected PackageRemapper remapper;
 
-public class PackageRemapperTest
-extends TestCase
-{
-    protected PackageRemapper remapper;
+  protected void setUp() {
+    Rule rule = new Rule();
+    rule.setPattern("org.**");
+    rule.setResult("foo.@1");
+    remapper = new PackageRemapper(Collections.singletonList(rule), false);
+  }
 
-    protected void setUp() {
-        Rule rule = new Rule();
-        rule.setPattern("org.**");
-        rule.setResult("foo.@1");
-        remapper = new PackageRemapper(Collections.singletonList(rule), false);
-    }
+  public void testMapValue() {
+    assertUnchangedValue("[^\\s;/@&=,.?:+$]");
+    assertUnchangedValue("[Ljava/lang/Object;");
+    assertUnchangedValue("[Lorg/example/Object;");
+    assertUnchangedValue("[Ljava.lang.Object;");
+    assertUnchangedValue("[Lorg.example/Object;");
+    assertUnchangedValue("[L;");
+    assertUnchangedValue("[Lorg.example.Object;;");
+    assertUnchangedValue("[Lorg.example.Obj ct;");
+    assertUnchangedValue("org.example/Object");
 
-    public void testMapValue() {
-      assertUnchangedValue("[^\\s;/@&=,.?:+$]");
-      assertUnchangedValue("[Ljava/lang/Object;");
-      assertUnchangedValue("[Lorg/example/Object;");
-      assertUnchangedValue("[Ljava.lang.Object;");
-      assertUnchangedValue("[Lorg.example/Object;");
-      assertUnchangedValue("[L;");
-      assertUnchangedValue("[Lorg.example.Object;;");
-      assertUnchangedValue("[Lorg.example.Obj ct;");
-      assertUnchangedValue("org.example/Object");
+    assertEquals("[Lfoo.example.Object;", remapper.mapValue("[Lorg.example.Object;"));
+    assertEquals("foo.example.Object", remapper.mapValue("org.example.Object"));
+    assertEquals("foo/example/Object", remapper.mapValue("org/example/Object"));
+    assertEquals("foo/example.Object", remapper.mapValue("org/example.Object")); // path match
 
-      assertEquals("[Lfoo.example.Object;", remapper.mapValue("[Lorg.example.Object;"));
-      assertEquals("foo.example.Object", remapper.mapValue("org.example.Object"));
-      assertEquals("foo/example/Object", remapper.mapValue("org/example/Object"));
-      assertEquals("foo/example.Object", remapper.mapValue("org/example.Object")); // path match
+    assertEquals("foo.example.package-info", remapper.mapValue("org.example.package-info"));
+    assertEquals("foo/example/package-info", remapper.mapValue("org/example/package-info"));
+    assertEquals("foo/example.package-info", remapper.mapValue("org/example.package-info"));
+  }
 
-      assertEquals("foo.example.package-info", remapper.mapValue("org.example.package-info"));
-      assertEquals("foo/example/package-info", remapper.mapValue("org/example/package-info"));
-      assertEquals("foo/example.package-info", remapper.mapValue("org/example.package-info"));
-    }
-
-    private void assertUnchangedValue(String value) {
-        assertEquals(value, remapper.mapValue(value));
-    }
+  private void assertUnchangedValue(String value) {
+    assertEquals(value, remapper.mapValue(value));
+  }
 }

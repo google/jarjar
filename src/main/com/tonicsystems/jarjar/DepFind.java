@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2007 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,62 +19,60 @@ package com.tonicsystems.jarjar;
 import com.tonicsystems.jarjar.util.*;
 import java.io.*;
 import java.util.*;
-import java.util.zip.ZipEntry;
 import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassVisitor;
 
-public class DepFind
-{
-    private File curDir = new File(System.getProperty("user.dir"));
+public class DepFind {
+  private File curDir = new File(System.getProperty("user.dir"));
 
-    public void setCurrentDirectory(File curDir) {
-        this.curDir = curDir;
-    }
+  public void setCurrentDirectory(File curDir) {
+    this.curDir = curDir;
+  }
 
-    public void run(String from, String to, DepHandler handler) throws IOException {
-        try {
-            ClassHeaderReader header = new ClassHeaderReader();
-            Map<String, String> classes = new HashMap<String, String>();
-            ClassPathIterator cp = new ClassPathIterator(curDir, to, null);
-            try {
-              while (cp.hasNext()) {
-                ClassPathEntry entry = cp.next();
-                InputStream in = entry.openStream();
-                try {
-                  header.read(in);
-                  classes.put(header.getClassName(), entry.getSource());
-                } catch (Exception e) {
-                  System.err.println("Error reading " + entry.getName() + ": " + e.getMessage());
-                } finally {
-                  in.close();
-                }
-              }
-            } finally {
-              cp.close();
-            }
-
-            handler.handleStart();
-            cp = new ClassPathIterator(curDir, from, null);
-            try {
-              while (cp.hasNext()) {
-                ClassPathEntry entry = cp.next();
-                InputStream in = entry.openStream();
-                try {
-                  new ClassReader(in).accept(
-                      new DepFindVisitor(classes, entry.getSource(), handler),
-                      ClassReader.SKIP_DEBUG);
-                } catch (Exception e) {
-                  System.err.println("Error reading " + entry.getName() + ": " + e.getMessage());
-                } finally {
-                  in.close();
-                }
-              }
-            } finally {
-              cp.close();
-            }
-            handler.handleEnd();
-        } catch (RuntimeIOException e) {
-            throw (IOException)e.getCause();
+  public void run(String from, String to, DepHandler handler) throws IOException {
+    try {
+      ClassHeaderReader header = new ClassHeaderReader();
+      Map<String, String> classes = new HashMap<String, String>();
+      ClassPathIterator cp = new ClassPathIterator(curDir, to, null);
+      try {
+        while (cp.hasNext()) {
+          ClassPathEntry entry = cp.next();
+          InputStream in = entry.openStream();
+          try {
+            header.read(in);
+            classes.put(header.getClassName(), entry.getSource());
+          } catch (Exception e) {
+            System.err.println("Error reading " + entry.getName() + ": " + e.getMessage());
+          } finally {
+            in.close();
+          }
         }
+      } finally {
+        cp.close();
+      }
+
+      handler.handleStart();
+      cp = new ClassPathIterator(curDir, from, null);
+      try {
+        while (cp.hasNext()) {
+          ClassPathEntry entry = cp.next();
+          InputStream in = entry.openStream();
+          try {
+            new ClassReader(in)
+                .accept(
+                    new DepFindVisitor(classes, entry.getSource(), handler),
+                    ClassReader.SKIP_DEBUG);
+          } catch (Exception e) {
+            System.err.println("Error reading " + entry.getName() + ": " + e.getMessage());
+          } finally {
+            in.close();
+          }
+        }
+      } finally {
+        cp.close();
+      }
+      handler.handleEnd();
+    } catch (RuntimeIOException e) {
+      throw (IOException) e.getCause();
     }
+  }
 }

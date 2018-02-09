@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2007 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,19 +20,17 @@ import com.tonicsystems.jarjar.util.*;
 import java.io.IOException;
 import java.util.*;
 
-class ManifestProcessor implements JarProcessor
-{
-    private static final String MANIFEST_PATH = "META-INF/MANIFEST.MF";
-    private static final ManifestProcessor INSTANCE = new ManifestProcessor();
+class ManifestProcessor implements JarProcessor {
+  private static final String MANIFEST_PATH = "META-INF/MANIFEST.MF";
+  private static final ManifestProcessor INSTANCE = new ManifestProcessor();
 
-    public static ManifestProcessor getInstance() {
-        return INSTANCE;
-    }
-    
-    private ManifestProcessor() {}
+  public static ManifestProcessor getInstance() {
+    return INSTANCE;
+  }
 
-    public boolean process(EntryStruct struct) throws IOException {
-        return !struct.name.equalsIgnoreCase(MANIFEST_PATH);
-    }
+  private ManifestProcessor() {}
+
+  public boolean process(EntryStruct struct) throws IOException {
+    return !struct.name.equalsIgnoreCase(MANIFEST_PATH);
+  }
 }
-    

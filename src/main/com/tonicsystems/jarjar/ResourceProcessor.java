@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2007 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,18 +20,17 @@ import com.tonicsystems.jarjar.util.*;
 import java.io.IOException;
 import java.util.*;
 
-class ResourceProcessor implements JarProcessor
-{
-    private PackageRemapper pr;
+class ResourceProcessor implements JarProcessor {
+  private PackageRemapper pr;
 
-    public ResourceProcessor(PackageRemapper pr) {
-        this.pr = pr;
-    }
+  public ResourceProcessor(PackageRemapper pr) {
+    this.pr = pr;
+  }
 
-    public boolean process(EntryStruct struct) throws IOException {
-        if (!struct.name.endsWith(".class"))
-            struct.name = pr.mapPath(struct.name);
-        return true;
+  public boolean process(EntryStruct struct) throws IOException {
+    if (!struct.name.endsWith(".class")) {
+      struct.name = pr.mapPath(struct.name);
     }
+    return true;
+  }
 }
-    

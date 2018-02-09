@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2007 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,16 +19,15 @@ package com.tonicsystems.jarjar;
 import java.io.*;
 import java.util.*;
 
-public class TextDepHandler extends AbstractDepHandler
-{
-    private PrintWriter w;
-    
-    public TextDepHandler(PrintWriter w, int level) {
-        super(level);
-        this.w = w;
-    }
-    
-    protected void handle(String from, String to) throws IOException {
-        w.println(from + " -> " + to);
-    }
+public class TextDepHandler extends AbstractDepHandler {
+  private PrintWriter w;
+
+  public TextDepHandler(PrintWriter w, int level) {
+    super(level);
+    this.w = w;
+  }
+
+  protected void handle(String from, String to) throws IOException {
+    w.println(from + " -> " + to);
+  }
 }

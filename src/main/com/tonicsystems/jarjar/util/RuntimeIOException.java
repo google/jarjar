@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2007 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,11 +18,10 @@ package com.tonicsystems.jarjar.util;
 
 import java.io.IOException;
 
-public class RuntimeIOException extends RuntimeException
-{
-    private static final long serialVersionUID = 0L;
+public class RuntimeIOException extends RuntimeException {
+  private static final long serialVersionUID = 0L;
 
-    public RuntimeIOException(IOException e) {
-        super(e);
-    }
+  public RuntimeIOException(IOException e) {
+    super(e);
+  }
 }

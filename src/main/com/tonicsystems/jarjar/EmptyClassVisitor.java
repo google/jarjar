@@ -23,28 +23,29 @@ import org.objectweb.asm.Opcodes;
 
 /**
  * An ASM3 EmptyVisitor replacement
+ *
  * @author <a href="mailto:blackdrag@gmx.org">Jochen "blackdrag" Theodorou</a>
  */
 public class EmptyClassVisitor extends ClassVisitor {
 
-    public EmptyClassVisitor() {
-        super(Opcodes.ASM4);
-    }
-    
-    @Override
-    public MethodVisitor visitMethod(int access, String name, String desc,
-            String signature, String[] exceptions) {
-        return new MethodVisitor(Opcodes.ASM4) {};
-    }
-    
-    @Override
-    public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
-        return new AnnotationVisitor(Opcodes.ASM4) {};
-    }
-    
-    @Override
-    public FieldVisitor visitField(int access, String name, String desc, String signature, Object value) {
-        return new FieldVisitor(Opcodes.ASM4) {};
-    }
+  public EmptyClassVisitor() {
+    super(Opcodes.ASM4);
+  }
 
+  @Override
+  public MethodVisitor visitMethod(
+      int access, String name, String desc, String signature, String[] exceptions) {
+    return new MethodVisitor(Opcodes.ASM4) {};
+  }
+
+  @Override
+  public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
+    return new AnnotationVisitor(Opcodes.ASM4) {};
+  }
+
+  @Override
+  public FieldVisitor visitField(
+      int access, String name, String desc, String signature, Object value) {
+    return new FieldVisitor(Opcodes.ASM4) {};
+  }
 }

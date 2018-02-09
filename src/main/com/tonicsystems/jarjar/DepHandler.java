@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2007 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,12 +18,13 @@ package com.tonicsystems.jarjar;
 
 import java.io.IOException;
 
-public interface DepHandler
-{
-    public static final int LEVEL_CLASS = 0;
-    public static final int LEVEL_JAR = 1;
+public interface DepHandler {
+  public static final int LEVEL_CLASS = 0;
+  public static final int LEVEL_JAR = 1;
 
-    void handleStart() throws IOException;
-    void handle(PathClass from, PathClass to) throws IOException;
-    void handleEnd() throws IOException;
+  void handleStart() throws IOException;
+
+  void handle(PathClass from, PathClass to) throws IOException;
+
+  void handleEnd() throws IOException;
 }

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2007 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,77 +20,89 @@ import com.tonicsystems.jarjar.util.*;
 import java.io.*;
 import org.objectweb.asm.*;
 
-class StringDumper
-{
-    public StringDumper() {
-    }
+class StringDumper {
+  public StringDumper() {}
 
-    public void run(String classPath, PrintWriter pw) throws IOException {
-        StringReader stringReader = new DumpStringReader(pw);
-        ClassPathIterator cp = new ClassPathIterator(classPath);
+  public void run(String classPath, PrintWriter pw) throws IOException {
+    StringReader stringReader = new DumpStringReader(pw);
+    ClassPathIterator cp = new ClassPathIterator(classPath);
+    try {
+      while (cp.hasNext()) {
+        ClassPathEntry entry = cp.next();
+        InputStream in = entry.openStream();
         try {
-            while (cp.hasNext()) {
-                ClassPathEntry entry = cp.next();
-                InputStream in = entry.openStream();
-                try {
-                    new ClassReader(in).accept(stringReader, 0);
-                } catch (Exception e) {
-                    System.err.println("Error reading " + entry.getName() + ": " + e.getMessage());
-                } finally {
-                    in.close();
-                }
-                pw.flush();
-            }
-        } catch (RuntimeIOException e) {
-            throw (IOException)e.getCause();
+          new ClassReader(in).accept(stringReader, 0);
+        } catch (Exception e) {
+          System.err.println("Error reading " + entry.getName() + ": " + e.getMessage());
         } finally {
-          cp.close();
+          in.close();
         }
+        pw.flush();
+      }
+    } catch (RuntimeIOException e) {
+      throw (IOException) e.getCause();
+    } finally {
+      cp.close();
+    }
+  }
+
+  private static class DumpStringReader extends StringReader {
+    private final PrintWriter pw;
+    private String className;
+
+    public DumpStringReader(PrintWriter pw) {
+      this.pw = pw;
     }
 
-    private static class DumpStringReader extends StringReader
-    {
-        private final PrintWriter pw;
-        private String className;
-
-        public DumpStringReader(PrintWriter pw) {
-            this.pw = pw;
+    public void visitString(String className, String value, int line) {
+      if (value.length() > 0) {
+        if (!className.equals(this.className)) {
+          this.className = className;
+          pw.println(className.replace('/', '.'));
         }
-
-        public void visitString(String className, String value, int line) {
-            if (value.length() > 0) {
-                if (!className.equals(this.className)) {
-                    this.className = className;
-                    pw.println(className.replace('/', '.'));
-                }
-                pw.print("\t");
-                if (line >= 0)
-                    pw.print(line + ": ");
-                pw.print(escapeStringLiteral(value));
-                pw.println();
-            }
+        pw.print("\t");
+        if (line >= 0) {
+          pw.print(line + ": ");
         }
-    };
-
-    private static String escapeStringLiteral(String value) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("\"");
-        char[] chars = value.toCharArray();
-        for (int i = 0, size = chars.length; i < size; i++) {
-            char ch = chars[i];
-            switch (ch) {
-            case '\n': sb.append("\\n"); break;
-            case '\r': sb.append("\\r"); break;
-            case '\b': sb.append("\\b"); break;
-            case '\f': sb.append("\\f"); break;
-            case '\t': sb.append("\\t"); break;
-            case '\"': sb.append("\\\""); break;
-            case '\\': sb.append("\\\\"); break;
-            default:
-                sb.append(ch);
-            }
-        }
-        sb.append("\"");
-        return sb.toString();
+        pw.print(escapeStringLiteral(value));
+        pw.println();
+      }
     }
+  };
+
+  private static String escapeStringLiteral(String value) {
+    StringBuilder sb = new StringBuilder();
+    sb.append("\"");
+    char[] chars = value.toCharArray();
+    for (int i = 0, size = chars.length; i < size; i++) {
+      char ch = chars[i];
+      switch (ch) {
+        case '\n':
+          sb.append("\\n");
+          break;
+        case '\r':
+          sb.append("\\r");
+          break;
+        case '\b':
+          sb.append("\\b");
+          break;
+        case '\f':
+          sb.append("\\f");
+          break;
+        case '\t':
+          sb.append("\\t");
+          break;
+        case '\"':
+          sb.append("\\\"");
+          break;
+        case '\\':
+          sb.append("\\\\");
+          break;
+        default:
+          sb.append(ch);
+      }
+    }
+    sb.append("\"");
+    return sb.toString();
+  }
 }

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2007 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,12 +16,8 @@
 
 package com.tonicsystems.jarjar.util;
 
-import java.io.InputStream;
-import java.io.File;
-
-public class EntryStruct
-{
-    public byte[] data;
-    public String name;
-    public long time;
+public class EntryStruct {
+  public byte[] data;
+  public String name;
+  public long time;
 }

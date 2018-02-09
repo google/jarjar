@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2007 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,27 +18,27 @@ package com.tonicsystems.jarjar;
 
 import java.util.*;
 
-abstract public class PatternElement
-{
-    private String pattern;
-    
-    public void setPattern(String pattern) {
-        this.pattern = pattern;
-    }
+public abstract class PatternElement {
+  private String pattern;
 
-    public String getPattern() {
-        return pattern;
-    }
+  public void setPattern(String pattern) {
+    this.pattern = pattern;
+  }
 
-    static List<Wildcard> createWildcards(List<? extends PatternElement> patterns) {
-        List<Wildcard> wildcards = new ArrayList<Wildcard>();
-        for (PatternElement pattern : patterns) {
-            String result = (pattern instanceof Rule) ? ((Rule)pattern).getResult() : "";
-            String expr = pattern.getPattern();
-            if (expr.indexOf('/') >= 0)
-                throw new IllegalArgumentException("Patterns cannot contain slashes");
-            wildcards.add(new Wildcard(expr.replace('.', '/'), result));
-        }
-        return wildcards;
+  public String getPattern() {
+    return pattern;
+  }
+
+  static List<Wildcard> createWildcards(List<? extends PatternElement> patterns) {
+    List<Wildcard> wildcards = new ArrayList<Wildcard>();
+    for (PatternElement pattern : patterns) {
+      String result = (pattern instanceof Rule) ? ((Rule) pattern).getResult() : "";
+      String expr = pattern.getPattern();
+      if (expr.indexOf('/') >= 0) {
+        throw new IllegalArgumentException("Patterns cannot contain slashes");
+      }
+      wildcards.add(new Wildcard(expr.replace('.', '/'), result));
     }
+    return wildcards;
+  }
 }
