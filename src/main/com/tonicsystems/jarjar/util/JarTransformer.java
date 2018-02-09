@@ -23,7 +23,7 @@ import org.objectweb.asm.ClassWriter;
 
 public abstract class JarTransformer implements JarProcessor {
   public boolean process(EntryStruct struct) throws IOException {
-    if (struct.name.endsWith(".class")) {
+        if (struct.isClass()) {
       ClassReader reader;
       try {
         reader = new ClassReader(struct.data);

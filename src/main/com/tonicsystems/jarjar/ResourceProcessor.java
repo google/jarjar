@@ -28,7 +28,7 @@ class ResourceProcessor implements JarProcessor {
   }
 
   public boolean process(EntryStruct struct) throws IOException {
-    if (!struct.name.endsWith(".class")) {
+    if (!struct.isClass()) {
       struct.name = pr.mapPath(struct.name);
     }
     return true;

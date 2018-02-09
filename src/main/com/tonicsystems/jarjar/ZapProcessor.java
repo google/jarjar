@@ -29,7 +29,7 @@ class ZapProcessor implements JarProcessor {
 
   public boolean process(EntryStruct struct) throws IOException {
     String name = struct.name;
-    if (name.endsWith(".class")) {
+    if (struct.isClass()) {
       return !zap(name.substring(0, name.length() - 6));
     }
     return true;
