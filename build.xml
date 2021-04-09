@@ -95,8 +95,8 @@
         <mkdir dir="dist"/>
         <jarjar jarfile="${jarfile}">
             <fileset dir="build/main"/>
-            <zipfileset src="lib/asm-6.0.jar"/>
-            <zipfileset src="lib/asm-commons-6.0.jar">
+            <zipfileset src="lib/asm-7.0.jar"/>
+            <zipfileset src="lib/asm-commons-7.0.jar">
                 <include name="org/objectweb/asm/commons/*Remapper.class"/>
                 <include name="org/objectweb/asm/commons/LocalVariablesSorter.class"/>
             </zipfileset>
