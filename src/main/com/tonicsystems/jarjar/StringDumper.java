@@ -68,7 +68,7 @@ class StringDumper {
         pw.println();
       }
     }
-  };
+  }
 
   private static String escapeStringLiteral(String value) {
     StringBuilder sb = new StringBuilder();

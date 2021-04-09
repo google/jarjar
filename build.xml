@@ -5,8 +5,8 @@
 
     <property name="javadoc.access" value="public"/>
 
-    <property name="compile.source" value="1.5"/>
-    <property name="compile.target" value="1.5"/>
+    <property name="compile.source" value="1.6"/>
+    <property name="compile.target" value="1.6"/>
     <property name="compile.bootclasspath" value=""/>
     <property name="compile.extdirs" value=""/>
 
@@ -15,24 +15,24 @@
     <property name="compile.optimize" value="false"/>
 
     <property name="src" location="src" />
-	<property name="build" location="build" />
-	<property name="dist" location="dist" />
+    <property name="build" location="build" />
+    <property name="dist" location="dist" />
 
     <!-- define Maven coordinates -->
-	<property name="groupId" value="com.googlecode.jarjar" />
-	<property name="artifactId" value="jarjar" />
+    <property name="groupId" value="com.googlecode.jarjar" />
+    <property name="artifactId" value="jarjar" />
     <property name="version" value="1.4"/>
 
     <!-- define artifacts' name, which follows the convention of Maven -->
-	<property name="maven-jar" value="${dist}/${artifactId}-${version}.jar" />
-	<property name="maven-javadoc-jar" value="${dist}/${artifactId}-${version}-javadoc.jar" />
-	<property name="maven-sources-jar" value="${dist}/${artifactId}-${version}-sources.jar" />
+    <property name="maven-jar" value="${dist}/${artifactId}-${version}.jar" />
+    <property name="maven-javadoc-jar" value="${dist}/${artifactId}-${version}-javadoc.jar" />
+    <property name="maven-sources-jar" value="${dist}/${artifactId}-${version}-sources.jar" />
 
     <!-- defined maven snapshots and staging repository id and url -->
-	<property name="maven-snapshots-repository-id" value="sonatype-nexus-snapshots" />
-	<property name="maven-snapshots-repository-url" value="https://oss.sonatype.org/content/repositories/snapshots/" />
-	<property name="maven-staging-repository-id" value="sonatype-nexus-staging" />
-	<property name="maven-staging-repository-url" value="https://oss.sonatype.org/service/local/staging/deploy/maven2/" />
+    <property name="maven-snapshots-repository-id" value="sonatype-nexus-snapshots" />
+    <property name="maven-snapshots-repository-url" value="https://oss.sonatype.org/content/repositories/snapshots/" />
+    <property name="maven-staging-repository-id" value="sonatype-nexus-staging" />
+    <property name="maven-staging-repository-url" value="https://oss.sonatype.org/service/local/staging/deploy/maven2/" />
 
 
     <property name="jarfile" value="dist/jarjar-${version}.jar"/>
@@ -70,8 +70,8 @@
               source="${compile.source}"
               target="${compile.target}" bootclasspath="@{bootclasspath}" extdirs="${compile.extdirs}"
               debug="${compile.debug}" optimize="${compile.optimize}" deprecation="${compile.deprecation}">
-                 <classpath refid="@{refid}"/>
-                 <compilerarg value="-Xlint"/>
+                <classpath refid="@{refid}"/>
+                <compilerarg value="-Xlint"/>
             </javac>
         </sequential>
     </macrodef>
@@ -100,7 +100,7 @@
                 <include name="org/objectweb/asm/commons/*Remapper.class"/>
                 <include name="org/objectweb/asm/commons/LocalVariablesSorter.class"/>
             </zipfileset>
-        	<keep pattern="com.tonicsystems.jarjar.Main"/>
+            <keep pattern="com.tonicsystems.jarjar.Main"/>
             <keep pattern="com.tonicsystems.jarjar.JarJarTask"/>
             <rule pattern="com.tonicsystems.jarjar.util.**" result="com.tonicsystems.jarjar.ext_util.@1"/>
             <rule pattern="org.objectweb.asm.**" result="com.tonicsystems.jarjar.asm.@1"/>
@@ -118,47 +118,47 @@
         </jar>
     </target>
 
-	<target name="dist" depends="jar,dist-src,javadoc" description="generate the distribution">
+    <target name="dist" depends="jar,dist-src,javadoc" description="generate the distribution">
         <copy file="${dist}/jarjar-src-${version}.zip" tofile="${maven-sources-jar}" />
         <jar jarfile="${maven-javadoc-jar}">
-			<fileset dir="${dist}/javadoc" />
-		</jar>
-	</target>
+            <fileset dir="${dist}/javadoc" />
+        </jar>
+    </target>
 
     <!-- before this, update project version (both build.xml and pom.xml) from SNAPSHOT to RELEASE -->
-	<target name="stage" depends="dist" description="deploy release version to Maven staging repository">
-		<!-- sign and deploy the main artifact -->
-		<artifact:mvn>
-			<arg value="org.apache.maven.plugins:maven-gpg-plugin:1.3:sign-and-deploy-file" />
-			<arg value="-Durl=${maven-staging-repository-url}" />
-			<arg value="-DrepositoryId=${maven-staging-repository-id}" />
-			<arg value="-DpomFile=pom.xml" />
-			<arg value="-Dfile=${maven-jar}" />
+    <target name="stage" depends="dist" description="deploy release version to Maven staging repository">
+        <!-- sign and deploy the main artifact -->
+        <artifact:mvn>
+            <arg value="org.apache.maven.plugins:maven-gpg-plugin:1.3:sign-and-deploy-file" />
+            <arg value="-Durl=${maven-staging-repository-url}" />
+            <arg value="-DrepositoryId=${maven-staging-repository-id}" />
+            <arg value="-DpomFile=pom.xml" />
+            <arg value="-Dfile=${maven-jar}" />
             <arg value="-Pgpg" />
-		</artifact:mvn>
+        </artifact:mvn>
 
-		<!-- sign and deploy the sources artifact -->
-		<artifact:mvn>
-			<arg value="org.apache.maven.plugins:maven-gpg-plugin:1.3:sign-and-deploy-file" />
-			<arg value="-Durl=${maven-staging-repository-url}" />
-			<arg value="-DrepositoryId=${maven-staging-repository-id}" />
-			<arg value="-DpomFile=pom.xml" />
-			<arg value="-Dfile=${maven-sources-jar}" />
-			<arg value="-Dclassifier=sources" />
+        <!-- sign and deploy the sources artifact -->
+        <artifact:mvn>
+            <arg value="org.apache.maven.plugins:maven-gpg-plugin:1.3:sign-and-deploy-file" />
+            <arg value="-Durl=${maven-staging-repository-url}" />
+            <arg value="-DrepositoryId=${maven-staging-repository-id}" />
+            <arg value="-DpomFile=pom.xml" />
+            <arg value="-Dfile=${maven-sources-jar}" />
+            <arg value="-Dclassifier=sources" />
             <arg value="-Pgpg" />
-		</artifact:mvn>
+        </artifact:mvn>
 
-		<!-- sign and deploy the javadoc artifact -->
-		<artifact:mvn>
-			<arg value="org.apache.maven.plugins:maven-gpg-plugin:1.3:sign-and-deploy-file" />
-			<arg value="-Durl=${maven-staging-repository-url}" />
-			<arg value="-DrepositoryId=${maven-staging-repository-id}" />
-			<arg value="-DpomFile=pom.xml" />
-			<arg value="-Dfile=${maven-javadoc-jar}" />
-			<arg value="-Dclassifier=javadoc" />
+        <!-- sign and deploy the javadoc artifact -->
+        <artifact:mvn>
+            <arg value="org.apache.maven.plugins:maven-gpg-plugin:1.3:sign-and-deploy-file" />
+            <arg value="-Durl=${maven-staging-repository-url}" />
+            <arg value="-DrepositoryId=${maven-staging-repository-id}" />
+            <arg value="-DpomFile=pom.xml" />
+            <arg value="-Dfile=${maven-javadoc-jar}" />
+            <arg value="-Dclassifier=javadoc" />
             <arg value="-Pgpg" />
-		</artifact:mvn>
-	</target>
+        </artifact:mvn>
+    </target>
 
     <target name="dist-src" depends="compile" description="Create source distribution">
         <mkdir dir="${dist}"/>
@@ -256,7 +256,7 @@
     <!-- TODO: reference ant javadocs -->
     <target name="javadoc" depends="compile" description="Generate the javadoc">
         <mkdir dir="dist/javadoc"/>
-        <javadoc 
+        <javadoc
           sourcepath="${src}/main"
           destdir="${dist}/javadoc"
           access="${javadoc.access}"
