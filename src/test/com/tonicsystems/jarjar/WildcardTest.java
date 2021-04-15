@@ -16,7 +16,9 @@
 
 package com.tonicsystems.jarjar;
 
-import junit.framework.*;
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 
 public class WildcardTest extends TestCase {
   public void testWildcards() {

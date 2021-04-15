@@ -16,10 +16,20 @@
 
 package com.tonicsystems.jarjar;
 
-import com.tonicsystems.jarjar.util.*;
+import com.tonicsystems.jarjar.util.EntryStruct;
+import com.tonicsystems.jarjar.util.JarProcessor;
+import com.tonicsystems.jarjar.util.JarProcessorChain;
+import com.tonicsystems.jarjar.util.JarTransformerChain;
+import com.tonicsystems.jarjar.util.RemappingClassTransformer;
+import com.tonicsystems.jarjar.util.StandaloneJarProcessor;
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 class MainProcessor implements JarProcessor {
   private final boolean verbose;

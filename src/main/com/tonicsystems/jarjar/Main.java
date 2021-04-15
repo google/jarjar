@@ -16,9 +16,15 @@
 
 package com.tonicsystems.jarjar;
 
-import com.tonicsystems.jarjar.util.*;
-import java.io.*;
-import java.util.*;
+import com.tonicsystems.jarjar.util.RuntimeIOException;
+import com.tonicsystems.jarjar.util.StandaloneJarProcessor;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.util.List;
 
 public class Main {
 

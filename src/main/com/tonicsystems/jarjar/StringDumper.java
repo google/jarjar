@@ -16,9 +16,13 @@
 
 package com.tonicsystems.jarjar;
 
-import com.tonicsystems.jarjar.util.*;
-import java.io.*;
-import org.objectweb.asm.*;
+import com.tonicsystems.jarjar.util.ClassPathEntry;
+import com.tonicsystems.jarjar.util.ClassPathIterator;
+import com.tonicsystems.jarjar.util.RuntimeIOException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import org.objectweb.asm.ClassReader;
 
 class StringDumper {
   public StringDumper() {}
@@ -69,7 +73,6 @@ class StringDumper {
       }
     }
   }
-  ;
 
   private static String escapeStringLiteral(String value) {
     StringBuilder sb = new StringBuilder();

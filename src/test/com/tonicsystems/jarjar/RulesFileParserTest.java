@@ -16,8 +16,9 @@
 
 package com.tonicsystems.jarjar;
 
-import java.io.*;
-import junit.framework.*;
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 
 public class RulesFileParserTest extends TestCase {
   public void testSimple() throws Exception {

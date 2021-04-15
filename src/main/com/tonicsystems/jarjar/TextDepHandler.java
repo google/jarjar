@@ -16,8 +16,8 @@
 
 package com.tonicsystems.jarjar;
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.io.PrintWriter;
 
 public class TextDepHandler extends AbstractDepHandler {
   private PrintWriter w;

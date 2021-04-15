@@ -16,8 +16,14 @@
 
 package com.tonicsystems.jarjar;
 
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.Reader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 class RulesFileParser {
   private RulesFileParser() {}
@@ -28,11 +34,6 @@ class RulesFileParser {
 
   public static List<PatternElement> parse(String value) throws IOException {
     return parse(new java.io.StringReader(value));
-  }
-
-  private static String stripComment(String in) {
-    int p = in.indexOf("#");
-    return p < 0 ? in : in.substring(0, p);
   }
 
   private static List<PatternElement> parse(Reader r) throws IOException {
@@ -74,6 +75,11 @@ class RulesFileParser {
     } finally {
       r.close();
     }
+  }
+
+  private static String stripComment(String in) {
+    int p = in.indexOf("#");
+    return p < 0 ? in : in.substring(0, p);
   }
 
   private static void error(int line, String[] parts) {

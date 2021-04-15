@@ -16,9 +16,9 @@
 
 package com.tonicsystems.jarjar;
 
-import com.tonicsystems.jarjar.util.*;
+import com.tonicsystems.jarjar.util.EntryStruct;
+import com.tonicsystems.jarjar.util.JarProcessor;
 import java.io.IOException;
-import java.util.*;
 
 class ResourceProcessor implements JarProcessor {
   private PackageRemapper pr;

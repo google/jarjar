@@ -17,7 +17,7 @@
 package com.tonicsystems.jarjar;
 
 import java.util.Collections;
-import junit.framework.*;
+import junit.framework.TestCase;
 
 public class PackageRemapperTest extends TestCase {
   protected PackageRemapper remapper;

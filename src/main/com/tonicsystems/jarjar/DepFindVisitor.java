@@ -16,11 +16,11 @@
 
 package com.tonicsystems.jarjar;
 
-import com.tonicsystems.jarjar.util.*;
-import java.io.*;
-import java.util.*;
-import org.objectweb.asm.*;
-import org.objectweb.asm.commons.*;
+import com.tonicsystems.jarjar.util.RuntimeIOException;
+import java.io.IOException;
+import java.util.Map;
+import org.objectweb.asm.commons.ClassRemapper;
+import org.objectweb.asm.commons.Remapper;
 
 class DepFindVisitor extends ClassRemapper {
   public DepFindVisitor(Map<String, String> classes, String source, DepHandler handler)

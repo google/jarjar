@@ -16,9 +16,11 @@
 
 package com.tonicsystems.jarjar;
 
-import com.tonicsystems.jarjar.util.*;
-import java.util.*;
-import junit.framework.*;
+import com.tonicsystems.jarjar.util.RemappingClassTransformer;
+import java.util.Arrays;
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 import org.objectweb.asm.ClassReader;
 
 public class GenericsTest extends TestCase {

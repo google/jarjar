@@ -16,9 +16,10 @@
 
 package com.tonicsystems.jarjar;
 
-import com.tonicsystems.jarjar.util.*;
+import com.tonicsystems.jarjar.util.EntryStruct;
+import com.tonicsystems.jarjar.util.JarProcessor;
 import java.io.IOException;
-import java.util.*;
+import java.util.Set;
 
 class ExcludeProcessor implements JarProcessor {
   private final Set<String> excludes;

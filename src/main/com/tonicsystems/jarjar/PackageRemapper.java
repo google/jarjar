@@ -16,10 +16,11 @@
 
 package com.tonicsystems.jarjar;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
-import org.objectweb.asm.*;
-import org.objectweb.asm.commons.*;
+import org.objectweb.asm.commons.Remapper;
 
 class PackageRemapper extends Remapper {
   private static final String RESOURCE_SUFFIX = "RESOURCE";

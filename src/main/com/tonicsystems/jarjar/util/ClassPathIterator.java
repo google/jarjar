@@ -16,10 +16,22 @@
 
 package com.tonicsystems.jarjar.util;
 
-import java.io.*;
-import java.util.*;
-import java.util.jar.*;
-import java.util.zip.*;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileFilter;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.StringTokenizer;
+import java.util.jar.JarFile;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 public class ClassPathIterator implements Iterator<ClassPathEntry> {
   private static final FileFilter CLASS_FILTER =

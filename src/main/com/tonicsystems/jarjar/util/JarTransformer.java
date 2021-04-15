@@ -16,7 +16,7 @@
 
 package com.tonicsystems.jarjar.util;
 
-import java.io.*;
+import java.io.IOException;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
