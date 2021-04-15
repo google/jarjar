@@ -52,6 +52,7 @@ abstract class StringReader extends ClassVisitor {
     line = -1;
   }
 
+  @Override
   public FieldVisitor visitField(
       int access, String name, String desc, String signature, Object value) {
     handleObject(value);

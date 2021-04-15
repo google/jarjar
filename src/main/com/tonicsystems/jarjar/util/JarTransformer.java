@@ -22,12 +22,13 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 
 public abstract class JarTransformer implements JarProcessor {
+  @Override
   public boolean process(EntryStruct struct) throws IOException {
     if (struct.isClass()) {
       ClassReader reader;
       try {
         reader = new ClassReader(struct.data);
-      } catch (Exception e) {
+      } catch (RuntimeException e) {
         return true; // TODO?
       }
       GetNameClassWriter w = new GetNameClassWriter(ClassWriter.COMPUTE_MAXS);

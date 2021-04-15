@@ -30,6 +30,7 @@ class ManifestProcessor implements JarProcessor {
 
   private ManifestProcessor() {}
 
+  @Override
   public boolean process(EntryStruct struct) throws IOException {
     return !struct.name.equalsIgnoreCase(MANIFEST_PATH);
   }

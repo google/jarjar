@@ -61,8 +61,8 @@ class IoUtil {
   /**
    * Create a copy of an zip file without its empty directories.
    *
-   * @param inputFile
-   * @param outputFile
+   * @param inputFile the input file
+   * @param outputFile the output file
    * @throws IOException
    */
   public static void copyZipWithoutEmptyDirectories(final File inputFile, final File outputFile)
@@ -83,6 +83,7 @@ class IoUtil {
       Collections.sort(
           sortedList,
           new Comparator<ZipEntry>() {
+            @Override
             public int compare(ZipEntry o1, ZipEntry o2) {
               return o1.getName().compareTo(o2.getName());
             }

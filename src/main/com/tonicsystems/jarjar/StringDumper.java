@@ -58,6 +58,7 @@ class StringDumper {
       this.pw = pw;
     }
 
+    @Override
     public void visitString(String className, String value, int line) {
       if (value.length() > 0) {
         if (!className.equals(this.className)) {

@@ -27,6 +27,7 @@ public class GetNameClassWriter extends ClassVisitor {
     super(Opcodes.ASM7, new ClassWriter(flags));
   }
 
+  @Override
   public void visit(
       int version,
       int access,

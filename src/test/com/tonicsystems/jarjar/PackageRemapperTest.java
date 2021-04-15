@@ -22,6 +22,7 @@ import junit.framework.TestCase;
 public class PackageRemapperTest extends TestCase {
   protected PackageRemapper remapper;
 
+  @Override
   protected void setUp() {
     Rule rule = new Rule();
     rule.setPattern("org.**");

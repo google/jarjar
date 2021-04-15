@@ -22,7 +22,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-class MainUtil {
+final class MainUtil {
   public static void runMain(Object main, String[] args, String defCommand) throws Exception {
     if (args.length > 0) {
       String command = args[0];
@@ -83,4 +83,6 @@ class MainUtil {
       throw new UnsupportedOperationException("Unknown type " + type);
     }
   }
+
+  private MainUtil() {}
 }

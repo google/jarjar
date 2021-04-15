@@ -82,7 +82,7 @@ class Wildcard {
             if (n > max) {
               max = n;
             }
-            parts.add(new Integer(n));
+            parts.add(Integer.valueOf(n));
             mark = i--;
             state = 0;
         }
@@ -155,6 +155,7 @@ class Wildcard {
     return pattern.matcher(value).replaceAll(replace);
   }
 
+  @Override
   public String toString() {
     return "Wildcard{pattern=" + pattern + ",parts=" + parts + "}";
   }

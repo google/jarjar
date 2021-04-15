@@ -30,6 +30,7 @@ public abstract class AbstractDepHandler implements DepHandler {
     this.level = level;
   }
 
+  @Override
   public void handle(PathClass from, PathClass to) throws IOException {
     List<Object> pair;
     if (level == LEVEL_JAR) {
@@ -45,8 +46,10 @@ public abstract class AbstractDepHandler implements DepHandler {
 
   protected abstract void handle(String from, String to) throws IOException;
 
+  @Override
   public void handleStart() throws IOException {}
 
+  @Override
   public void handleEnd() throws IOException {}
 
   private static List<Object> createPair(Object o1, Object o2) {

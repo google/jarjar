@@ -69,6 +69,7 @@ class KeepProcessor extends Remapper implements JarProcessor {
   private Set<String> curSet;
   private byte[] buf = new byte[0x2000];
 
+  @Override
   public boolean process(EntryStruct struct) throws IOException {
     try {
       if (struct.isClass()) {
@@ -88,6 +89,7 @@ class KeepProcessor extends Remapper implements JarProcessor {
     return true;
   }
 
+  @Override
   public String map(String key) {
     if (key.startsWith("java/") || key.startsWith("javax/")) {
       return null;
@@ -96,6 +98,7 @@ class KeepProcessor extends Remapper implements JarProcessor {
     return null;
   }
 
+  @Override
   public Object mapValue(Object value) {
     if (value instanceof String) {
       String s = (String) value;

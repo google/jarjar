@@ -28,6 +28,7 @@ class DepFindVisitor extends ClassRemapper {
     super(null, new DepFindRemapper(classes, source, handler));
   }
 
+  @Override
   public void visit(
       int version,
       int access,
@@ -45,8 +46,7 @@ class DepFindVisitor extends ClassRemapper {
     private final DepHandler handler;
     private PathClass curPathClass;
 
-    public DepFindRemapper(Map<String, String> classes, String source, DepHandler handler)
-        throws IOException {
+    public DepFindRemapper(Map<String, String> classes, String source, DepHandler handler) {
       this.classes = classes;
       this.source = source;
       this.handler = handler;
@@ -56,6 +56,7 @@ class DepFindVisitor extends ClassRemapper {
       curPathClass = new PathClass(source, name);
     }
 
+    @Override
     public String map(String key) {
       try {
         if (classes.containsKey(key)) {

@@ -44,6 +44,7 @@ class PackageRemapper extends Remapper {
     return ARRAY_FOR_NAME_PATTERN.matcher(value).matches();
   }
 
+  @Override
   public String map(String key) {
     String s = typeCache.get(key);
     if (s == null) {
@@ -88,6 +89,7 @@ class PackageRemapper extends Remapper {
     return s;
   }
 
+  @Override
   public Object mapValue(Object value) {
     if (value instanceof String) {
       String s = valueCache.get(value);

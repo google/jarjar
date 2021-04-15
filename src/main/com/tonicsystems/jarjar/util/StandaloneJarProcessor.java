@@ -27,7 +27,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
 
-public class StandaloneJarProcessor {
+public final class StandaloneJarProcessor {
   public static void run(File from, File to, JarProcessor proc) throws IOException {
     byte[] buf = new byte[0x2000];
 
@@ -69,4 +69,6 @@ public class StandaloneJarProcessor {
     IoUtil.copyZipWithoutEmptyDirectories(tmpTo, to);
     tmpTo.delete();
   }
+
+  private StandaloneJarProcessor() {}
 }

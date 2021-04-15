@@ -27,6 +27,7 @@ public class TextDepHandler extends AbstractDepHandler {
     this.w = w;
   }
 
+  @Override
   protected void handle(String from, String to) throws IOException {
     w.println(from + " -> " + to);
   }

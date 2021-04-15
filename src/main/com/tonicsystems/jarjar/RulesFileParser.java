@@ -16,11 +16,13 @@
 
 package com.tonicsystems.jarjar;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -29,7 +31,7 @@ class RulesFileParser {
   private RulesFileParser() {}
 
   public static List<PatternElement> parse(File file) throws IOException {
-    return parse(new FileReader(file));
+    return parse(Files.newBufferedReader(file.toPath(), UTF_8));
   }
 
   public static List<PatternElement> parse(String value) throws IOException {

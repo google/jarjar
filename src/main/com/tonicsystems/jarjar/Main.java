@@ -16,13 +16,17 @@
 
 package com.tonicsystems.jarjar;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import com.tonicsystems.jarjar.util.RuntimeIOException;
 import com.tonicsystems.jarjar.util.StandaloneJarProcessor;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.List;
 
@@ -65,7 +69,8 @@ public class Main {
     if (cp == null) {
       throw new IllegalArgumentException("cp is required");
     }
-    new StringDumper().run(cp, new PrintWriter(System.out));
+    new StringDumper()
+        .run(cp, new PrintWriter(new BufferedWriter(new OutputStreamWriter(System.out, UTF_8))));
   }
 
   // TODO: make level an enum
@@ -84,7 +89,7 @@ public class Main {
     } else {
       throw new IllegalArgumentException("unknown level " + level);
     }
-    PrintWriter w = new PrintWriter(System.out);
+    PrintWriter w = new PrintWriter(new BufferedWriter(new OutputStreamWriter(System.out, UTF_8)));
     DepHandler handler = new TextDepHandler(w, levelFlag);
     new DepFind().run(cp1, cp2, handler);
     w.flush();

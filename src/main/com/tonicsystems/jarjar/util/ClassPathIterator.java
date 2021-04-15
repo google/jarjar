@@ -36,6 +36,7 @@ import java.util.zip.ZipFile;
 public class ClassPathIterator implements Iterator<ClassPathEntry> {
   private static final FileFilter CLASS_FILTER =
       new FileFilter() {
+        @Override
         public boolean accept(File file) {
           return file.isDirectory() || isClass(file.getName());
         }
@@ -43,6 +44,7 @@ public class ClassPathIterator implements Iterator<ClassPathEntry> {
 
   private static final FileFilter JAR_FILTER =
       new FileFilter() {
+        @Override
         public boolean accept(File file) {
           return hasExtension(file.getName(), ".jar");
         }
@@ -97,6 +99,7 @@ public class ClassPathIterator implements Iterator<ClassPathEntry> {
     advance();
   }
 
+  @Override
   public boolean hasNext() {
     return next != null;
   }
@@ -109,10 +112,12 @@ public class ClassPathIterator implements Iterator<ClassPathEntry> {
     }
   }
 
+  @Override
   public void remove() {
     throw new UnsupportedOperationException();
   }
 
+  @Override
   public ClassPathEntry next() {
     if (!hasNext()) {
       throw new NoSuchElementException();
@@ -167,25 +172,31 @@ public class ClassPathIterator implements Iterator<ClassPathEntry> {
       this.entries = zip.entries();
     }
 
+    @Override
     public boolean hasNext() {
       return entries.hasMoreElements();
     }
 
+    @Override
     public void remove() {
       throw new UnsupportedOperationException();
     }
 
+    @Override
     public ClassPathEntry next() {
       final ZipEntry entry = entries.nextElement();
       return new ClassPathEntry() {
+        @Override
         public String getSource() {
           return zip.getName();
         }
 
+        @Override
         public String getName() {
           return entry.getName();
         }
 
+        @Override
         public InputStream openStream() throws IOException {
           return zip.getInputStream(entry);
         }
@@ -202,25 +213,31 @@ public class ClassPathIterator implements Iterator<ClassPathEntry> {
       this.entries = findFiles(dir, CLASS_FILTER, true, new ArrayList<File>()).iterator();
     }
 
+    @Override
     public boolean hasNext() {
       return entries.hasNext();
     }
 
+    @Override
     public void remove() {
       throw new UnsupportedOperationException();
     }
 
+    @Override
     public ClassPathEntry next() {
       final File file = entries.next();
       return new ClassPathEntry() {
+        @Override
         public String getSource() throws IOException {
           return dir.getCanonicalPath();
         }
 
+        @Override
         public String getName() {
           return file.getName();
         }
 
+        @Override
         public InputStream openStream() throws IOException {
           return new BufferedInputStream(new FileInputStream(file));
         }

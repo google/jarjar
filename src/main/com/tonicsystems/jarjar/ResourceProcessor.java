@@ -27,6 +27,7 @@ class ResourceProcessor implements JarProcessor {
     this.pr = pr;
   }
 
+  @Override
   public boolean process(EntryStruct struct) throws IOException {
     if (!struct.isClass()) {
       struct.name = pr.mapPath(struct.name);

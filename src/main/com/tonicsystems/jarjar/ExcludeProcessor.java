@@ -30,6 +30,7 @@ class ExcludeProcessor implements JarProcessor {
     this.verbose = verbose;
   }
 
+  @Override
   public boolean process(EntryStruct struct) throws IOException {
     boolean toKeep = !excludes.contains(struct.name);
     if (verbose && !toKeep) {

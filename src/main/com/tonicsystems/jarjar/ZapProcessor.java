@@ -28,6 +28,7 @@ class ZapProcessor implements JarProcessor {
     wildcards = PatternElement.createWildcards(zapList);
   }
 
+  @Override
   public boolean process(EntryStruct struct) throws IOException {
     String name = struct.name;
     if (struct.isClass()) {
