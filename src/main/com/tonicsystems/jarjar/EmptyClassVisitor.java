@@ -23,7 +23,6 @@ import org.objectweb.asm.Opcodes;
 
 /**
  * An ASM3 EmptyVisitor replacement
- *
  * @author <a href="mailto:blackdrag@gmx.org">Jochen "blackdrag" Theodorou</a>
  */
 public class EmptyClassVisitor extends ClassVisitor {

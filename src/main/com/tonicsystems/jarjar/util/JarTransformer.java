@@ -23,7 +23,7 @@ import org.objectweb.asm.ClassWriter;
 
 public abstract class JarTransformer implements JarProcessor {
   public boolean process(EntryStruct struct) throws IOException {
-        if (struct.isClass()) {
+    if (struct.isClass()) {
       ClassReader reader;
       try {
         reader = new ClassReader(struct.data);
@@ -31,9 +31,17 @@ public abstract class JarTransformer implements JarProcessor {
         return true; // TODO?
       }
       GetNameClassWriter w = new GetNameClassWriter(ClassWriter.COMPUTE_MAXS);
-      reader.accept(transform(w), ClassReader.EXPAND_FRAMES);
-      struct.data = w.toByteArray();
-      struct.name = pathFromName(w.getClassName());
+      ClassVisitor visitor = transform(w);
+      reader.accept(visitor, ClassReader.EXPAND_FRAMES);
+
+      boolean updateData = true;
+      if (visitor instanceof RemappingClassTransformer) {
+        updateData = ((RemappingClassTransformer) visitor).didRemap();
+      }
+      if (updateData) {
+        struct.data = w.toByteArray();
+        struct.name = pathFromName(w.getClassName());
+      }
     }
     return true;
   }

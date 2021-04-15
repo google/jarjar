@@ -61,7 +61,7 @@ class KeepProcessor extends Remapper implements JarProcessor {
 
   public boolean process(EntryStruct struct) throws IOException {
     try {
-      if (struct.name.endsWith(".class")) {
+      if (struct.isClass()) {
         String name = struct.name.substring(0, struct.name.length() - 6);
         for (Wildcard wildcard : wildcards)
           if (wildcard.matches(name)) {

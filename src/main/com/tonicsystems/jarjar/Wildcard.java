@@ -115,8 +115,9 @@ class Wildcard {
     Matcher matcher = getMatcher(value);
     if (matcher != null) {
       StringBuilder sb = new StringBuilder();
-      for (int i = 0; i < strings.length; i++)
+      for (int i = 0; i < strings.length; i++) {
         sb.append((refs[i] >= 0) ? matcher.group(refs[i]) : strings[i]);
+      }
       return sb.toString();
     }
     return null;

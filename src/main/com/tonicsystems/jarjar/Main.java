@@ -37,7 +37,9 @@ public class Main {
     StringBuilder sb = new StringBuilder();
     BufferedReader r = new BufferedReader(new InputStreamReader(in, "UTF-8"));
     String line = null;
-    while ((line = r.readLine()) != null) sb.append(line).append(LINE_SEPARATOR);
+    while ((line = r.readLine()) != null) {
+      sb.append(line).append(LINE_SEPARATOR);
+    }
     return sb.toString();
   }
 
