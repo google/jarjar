@@ -45,16 +45,9 @@ class IoUtil {
   }
 
   public static void copy(File from, File to, byte[] buf) throws IOException {
-    InputStream in = new FileInputStream(from);
-    try {
-      OutputStream out = new FileOutputStream(to);
-      try {
-        pipe(in, out, buf);
-      } finally {
-        out.close();
-      }
-    } finally {
-      in.close();
+    try (InputStream in = new FileInputStream(from);
+        OutputStream out = new FileOutputStream(to)) {
+      pipe(in, out, buf);
     }
   }
 
@@ -74,7 +67,7 @@ class IoUtil {
     try {
       // read a the entries of the input zip file and sort them
       final Enumeration<? extends ZipEntry> e = inputZip.entries();
-      final ArrayList<ZipEntry> sortedList = new ArrayList<ZipEntry>();
+      final ArrayList<ZipEntry> sortedList = new ArrayList<>();
       while (e.hasMoreElements()) {
         final ZipEntry entry = e.nextElement();
         sortedList.add(entry);
@@ -113,10 +106,10 @@ class IoUtil {
           final ZipEntry outputEntry = new ZipEntry(inputEntry);
           outputStream.putNextEntry(outputEntry);
           ByteArrayOutputStream baos = new ByteArrayOutputStream();
-          final InputStream is = inputZip.getInputStream(inputEntry);
-          IoUtil.pipe(is, baos, buf);
-          is.close();
-          outputStream.write(baos.toByteArray());
+          try (final InputStream is = inputZip.getInputStream(inputEntry)) {
+            IoUtil.pipe(is, baos, buf);
+          }
+          baos.writeTo(outputStream);
         }
       }
     } finally {

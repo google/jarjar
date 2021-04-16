@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.util.List;
 
 class ZapProcessor implements JarProcessor {
-  private List<Wildcard> wildcards;
+  private final List<Wildcard> wildcards;
 
   public ZapProcessor(List<Zap> zapList) {
     wildcards = PatternElement.createWildcards(zapList);

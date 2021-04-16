@@ -29,9 +29,9 @@ class PackageRemapper extends Remapper {
       Pattern.compile("\\[L[\\p{javaJavaIdentifierPart}\\.]+?;");
 
   private final List<Wildcard> wildcards;
-  private final Map<String, String> typeCache = new HashMap<String, String>();
-  private final Map<String, String> pathCache = new HashMap<String, String>();
-  private final Map<Object, String> valueCache = new HashMap<Object, String>();
+  private final Map<String, String> typeCache = new HashMap<>();
+  private final Map<String, String> pathCache = new HashMap<>();
+  private final Map<Object, String> valueCache = new HashMap<>();
   private final boolean verbose;
 
   public PackageRemapper(List<Rule> ruleList, boolean verbose) {
@@ -80,7 +80,7 @@ class PackageRemapper extends Remapper {
       if (absolute) {
         s = "/" + s;
       }
-      if (s.indexOf(RESOURCE_SUFFIX) < 0) {
+      if (!s.contains(RESOURCE_SUFFIX)) {
         return path;
       }
       s = s.substring(0, s.length() - RESOURCE_SUFFIX.length()) + end;

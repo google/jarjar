@@ -24,7 +24,7 @@ import java.util.Set;
 
 public abstract class AbstractDepHandler implements DepHandler {
   protected final int level;
-  private final Set<List<Object>> seenIt = new HashSet<List<Object>>();
+  private final Set<List<Object>> seenIt = new HashSet<>();
 
   protected AbstractDepHandler(int level) {
     this.level = level;
@@ -38,8 +38,7 @@ public abstract class AbstractDepHandler implements DepHandler {
     } else {
       pair = createPair(from.getClassName(), to.getClassName());
     }
-    if (!seenIt.contains(pair)) {
-      seenIt.add(pair);
+    if (seenIt.add(pair)) {
       handle(pair.get(0).toString(), pair.get(1).toString());
     }
   }
@@ -53,7 +52,7 @@ public abstract class AbstractDepHandler implements DepHandler {
   public void handleEnd() throws IOException {}
 
   private static List<Object> createPair(Object o1, Object o2) {
-    List<Object> list = new ArrayList<Object>(2);
+    List<Object> list = new ArrayList<>(2);
     list.add(o1);
     list.add(o2);
     return list;

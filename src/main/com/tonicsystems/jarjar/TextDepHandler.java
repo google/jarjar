@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 public class TextDepHandler extends AbstractDepHandler {
-  private PrintWriter w;
+  private final PrintWriter w;
 
   public TextDepHandler(PrintWriter w, int level) {
     super(level);

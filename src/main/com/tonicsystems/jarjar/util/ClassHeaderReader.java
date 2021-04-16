@@ -33,8 +33,8 @@ public class ClassHeaderReader {
   private byte[] b = new byte[0x2000];
   private int[] items = new int[1000];
   private int bsize = 0;
-  private MyByteArrayInputStream bin = new MyByteArrayInputStream();
-  private DataInputStream data = new DataInputStream(bin);
+  private final MyByteArrayInputStream bin = new MyByteArrayInputStream();
+  private final DataInputStream data = new DataInputStream(bin);
 
   public int getAccess() {
     return access;

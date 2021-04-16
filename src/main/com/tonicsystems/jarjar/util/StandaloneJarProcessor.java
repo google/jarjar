@@ -34,7 +34,7 @@ public final class StandaloneJarProcessor {
     JarFile in = new JarFile(from);
     final File tmpTo = File.createTempFile("jarjar", ".jar");
     JarOutputStream out = new JarOutputStream(new FileOutputStream(tmpTo));
-    Set<String> entries = new HashSet<String>();
+    Set<String> entries = new HashSet<>();
     try {
       EntryStruct struct = new EntryStruct();
       Enumeration<JarEntry> e = in.entries();

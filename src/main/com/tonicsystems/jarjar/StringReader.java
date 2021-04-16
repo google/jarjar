@@ -87,35 +87,34 @@ abstract class StringReader extends ClassVisitor {
   @Override
   public MethodVisitor visitMethod(
       int access, String name, String desc, String signature, String[] exceptions) {
-    MethodVisitor mv =
-        new MethodVisitor(Opcodes.ASM7) {
-          @Override
-          public void visitLdcInsn(Object cst) {
-            handleObject(cst);
-          }
+    return new MethodVisitor(Opcodes.ASM7) {
+      @Override
+      public void visitLdcInsn(Object cst) {
+        handleObject(cst);
+      }
 
-          @Override
-          public void visitLineNumber(int line, Label start) {
-            StringReader.this.line = line;
-          }
+      @Override
+      public void visitLineNumber(int line, Label start) {
+        StringReader.this.line = line;
+      }
 
-          @Override
-          public void visitInvokeDynamicInsn(
-              String name, String desc, Handle bsm, Object... bsmArgs) {
-            for (Object bsmArg : bsmArgs) handleObject(bsmArg);
-          }
+      @Override
+      public void visitInvokeDynamicInsn(String name, String desc, Handle bsm, Object... bsmArgs) {
+        for (Object bsmArg : bsmArgs) {
+          handleObject(bsmArg);
+        }
+      }
 
-          @Override
-          public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
-            return StringReader.this.visitAnnotation(desc, visible);
-          }
+      @Override
+      public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
+        return StringReader.this.visitAnnotation(desc, visible);
+      }
 
-          @Override
-          public AnnotationVisitor visitParameterAnnotation(
-              int parameter, String desc, boolean visible) {
-            return StringReader.this.visitAnnotation(desc, visible);
-          }
-        };
-    return mv;
+      @Override
+      public AnnotationVisitor visitParameterAnnotation(
+          int parameter, String desc, boolean visible) {
+        return StringReader.this.visitAnnotation(desc, visible);
+      }
+    };
   }
 }

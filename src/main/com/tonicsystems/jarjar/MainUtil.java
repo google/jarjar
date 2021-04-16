@@ -16,6 +16,8 @@
 
 package com.tonicsystems.jarjar;
 
+import static java.lang.Math.max;
+
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -54,11 +56,11 @@ final class MainUtil {
   }
 
   private static Object[] bindParameters(Method method, String[] args) {
-    List<Object> parameters = new ArrayList<Object>();
+    List<Object> parameters = new ArrayList<>();
     Class[] parameterTypes = method.getParameterTypes();
     for (int i = 0, len = parameterTypes.length; i < len; i++) {
       Class type = parameterTypes[i];
-      int remaining = Math.max(0, args.length - i);
+      int remaining = max(0, args.length - i);
       if (type.equals(String[].class)) {
         String[] rest = new String[remaining];
         System.arraycopy(args, 1, rest, 0, remaining);

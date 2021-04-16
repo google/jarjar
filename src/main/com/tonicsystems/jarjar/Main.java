@@ -45,7 +45,7 @@ public class Main {
 
   private static String readIntoString(InputStream in) throws IOException {
     StringBuilder sb = new StringBuilder();
-    BufferedReader r = new BufferedReader(new InputStreamReader(in, "UTF-8"));
+    BufferedReader r = new BufferedReader(new InputStreamReader(in, UTF_8));
     String line = null;
     while ((line = r.readLine()) != null) {
       sb.append(line).append(LINE_SEPARATOR);

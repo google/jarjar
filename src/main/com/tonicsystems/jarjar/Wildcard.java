@@ -22,13 +22,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 class Wildcard {
-  private static Pattern dstar = Pattern.compile("\\*\\*");
-  private static Pattern star = Pattern.compile("\\*");
-  private static Pattern estar = Pattern.compile("\\+\\??\\)\\Z");
+  private static final Pattern DSTAR = Pattern.compile("\\*\\*");
+  private static final Pattern STAR = Pattern.compile("\\*");
+  private static final Pattern ESTAR = Pattern.compile("\\+\\??\\)\\Z");
 
   private final Pattern pattern;
   private final int count;
-  private final ArrayList<Object> parts = new ArrayList<Object>(16); // kept for debugging
+  private final ArrayList<Object> parts = new ArrayList<>(16); // kept for debugging
   private final String[] strings;
   private final int[] refs;
 
@@ -39,14 +39,14 @@ class Wildcard {
     if (!checkIdentifierChars(pattern, "/*-")) {
       throw new IllegalArgumentException("Not a valid package pattern: " + pattern);
     }
-    if (pattern.indexOf("***") >= 0) {
+    if (pattern.contains("***")) {
       throw new IllegalArgumentException("The sequence '***' is invalid in a package pattern");
     }
 
     String regex = pattern;
-    regex = replaceAllLiteral(dstar, regex, "(.+?)");
-    regex = replaceAllLiteral(star, regex, "([^/]+)");
-    regex = replaceAllLiteral(estar, regex, "*)");
+    regex = replaceAllLiteral(DSTAR, regex, "(.+?)");
+    regex = replaceAllLiteral(STAR, regex, "([^/]+)");
+    regex = replaceAllLiteral(ESTAR, regex, "*)");
     this.pattern = Pattern.compile("\\A" + regex + "\\Z");
     this.count = this.pattern.matcher("foo").groupCount();
 

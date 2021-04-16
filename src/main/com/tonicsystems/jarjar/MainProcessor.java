@@ -35,13 +35,13 @@ class MainProcessor implements JarProcessor {
   private final boolean verbose;
   private final JarProcessorChain chain;
   private final KeepProcessor kp;
-  private final Map<String, String> renames = new HashMap<String, String>();
+  private final Map<String, String> renames = new HashMap<>();
 
   public MainProcessor(List<PatternElement> patterns, boolean verbose, boolean skipManifest) {
     this.verbose = verbose;
-    List<Zap> zapList = new ArrayList<Zap>();
-    List<Rule> ruleList = new ArrayList<Rule>();
-    List<Keep> keepList = new ArrayList<Keep>();
+    List<Zap> zapList = new ArrayList<>();
+    List<Rule> ruleList = new ArrayList<>();
+    List<Keep> keepList = new ArrayList<>();
     for (PatternElement pattern : patterns) {
       if (pattern instanceof Zap) {
         zapList.add((Zap) pattern);
@@ -55,7 +55,7 @@ class MainProcessor implements JarProcessor {
     PackageRemapper pr = new PackageRemapper(ruleList, verbose);
     kp = keepList.isEmpty() ? null : new KeepProcessor(keepList);
 
-    List<JarProcessor> processors = new ArrayList<JarProcessor>();
+    List<JarProcessor> processors = new ArrayList<>();
     if (skipManifest) {
       processors.add(ManifestProcessor.getInstance());
     }
@@ -67,7 +67,7 @@ class MainProcessor implements JarProcessor {
         new JarTransformerChain(
             new RemappingClassTransformer[] {new RemappingClassTransformer(pr)}));
     processors.add(new ResourceProcessor(pr));
-    chain = new JarProcessorChain(processors.toArray(new JarProcessor[processors.size()]));
+    chain = new JarProcessorChain(processors.toArray(new JarProcessor[0]));
   }
 
   public void strip(File file) throws IOException {
@@ -87,7 +87,7 @@ class MainProcessor implements JarProcessor {
    * @return the paths of the files in the jar-archive, including the <code>.class</code> suffix
    */
   private Set<String> getExcludes() {
-    Set<String> result = new HashSet<String>();
+    Set<String> result = new HashSet<>();
     for (String exclude : kp.getExcludes()) {
       String name = exclude + ".class";
       String renamed = renames.get(name);

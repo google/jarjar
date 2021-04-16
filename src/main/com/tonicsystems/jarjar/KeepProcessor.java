@@ -36,8 +36,8 @@ import org.objectweb.asm.commons.Remapper;
 class KeepProcessor extends Remapper implements JarProcessor {
   private final ClassVisitor cv = new ClassRemapper(new EmptyClassVisitor(), this);
   private final List<Wildcard> wildcards;
-  private final List<String> roots = new ArrayList<String>();
-  private final Map<String, Set<String>> depend = new HashMap<String, Set<String>>();
+  private final List<String> roots = new ArrayList<>();
+  private final Map<String, Set<String>> depend = new HashMap<>();
 
   public KeepProcessor(List<Keep> patterns) {
     wildcards = PatternElement.createWildcards(patterns);
@@ -48,9 +48,9 @@ class KeepProcessor extends Remapper implements JarProcessor {
   }
 
   public Set<String> getExcludes() {
-    Set<String> closure = new HashSet<String>();
+    Set<String> closure = new HashSet<>();
     closureHelper(closure, roots);
-    Set<String> removable = new HashSet<String>(depend.keySet());
+    Set<String> removable = new HashSet<>(depend.keySet());
     removable.removeAll(closure);
     return removable;
   }
@@ -73,11 +73,12 @@ class KeepProcessor extends Remapper implements JarProcessor {
     try {
       if (struct.isClass()) {
         String name = struct.name.substring(0, struct.name.length() - 6);
-        for (Wildcard wildcard : wildcards)
+        for (Wildcard wildcard : wildcards) {
           if (wildcard.matches(name)) {
             roots.add(name);
           }
-        depend.put(name, curSet = new HashSet<String>());
+        }
+        depend.put(name, curSet = new HashSet<>());
         new ClassReader(new ByteArrayInputStream(struct.data))
             .accept(cv, ClassReader.EXPAND_FRAMES);
         curSet.remove(name);
@@ -114,7 +115,7 @@ class KeepProcessor extends Remapper implements JarProcessor {
 
   // TODO: use this for package remapping too?
   private static boolean isForName(String value) {
-    if (value.equals("")) {
+    if (value.isEmpty()) {
       return false;
     }
     for (int i = 0, len = value.length(); i < len; i++) {

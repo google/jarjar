@@ -37,7 +37,7 @@ public class DepFind {
   public void run(String from, String to, DepHandler handler) throws IOException {
     try {
       ClassHeaderReader header = new ClassHeaderReader();
-      Map<String, String> classes = new HashMap<String, String>();
+      Map<String, String> classes = new HashMap<>();
       ClassPathIterator cp = new ClassPathIterator(curDir, to, null);
       try {
         while (cp.hasNext()) {

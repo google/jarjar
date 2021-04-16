@@ -40,7 +40,7 @@ class RulesFileParser {
 
   private static List<PatternElement> parse(Reader r) throws IOException {
     try {
-      List<PatternElement> patterns = new ArrayList<PatternElement>();
+      List<PatternElement> patterns = new ArrayList<>();
       BufferedReader br = new BufferedReader(r);
       int c = 1;
       String line;
@@ -55,19 +55,23 @@ class RulesFileParser {
         }
         String type = parts[0];
         PatternElement element = null;
-        if (type.equals("rule")) {
-          if (parts.length < 3) {
+        switch (type) {
+          case "rule":
+            if (parts.length < 3) {
+              error(c, parts);
+            }
+            Rule rule = new Rule();
+            rule.setResult(parts[2]);
+            element = rule;
+            break;
+          case "zap":
+            element = new Zap();
+            break;
+          case "keep":
+            element = new Keep();
+            break;
+          default:
             error(c, parts);
-          }
-          Rule rule = new Rule();
-          rule.setResult(parts[2]);
-          element = rule;
-        } else if (type.equals("zap")) {
-          element = new Zap();
-        } else if (type.equals("keep")) {
-          element = new Keep();
-        } else {
-          error(c, parts);
         }
         element.setPattern(parts[1]);
         patterns.add(element);

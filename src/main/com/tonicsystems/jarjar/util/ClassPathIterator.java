@@ -51,9 +51,9 @@ public class ClassPathIterator implements Iterator<ClassPathEntry> {
       };
 
   private final Iterator<File> files;
-  private Iterator<ClassPathEntry> entries = Collections.<ClassPathEntry>emptyList().iterator();
+  private Iterator<ClassPathEntry> entries = Collections.emptyIterator();
   private ClassPathEntry next;
-  private List<ZipFile> zips = new ArrayList<ZipFile>();
+  private final List<ZipFile> zips = new ArrayList<>();
 
   public ClassPathIterator(String classPath) throws IOException {
     this(new File(System.getProperty("user.dir")), classPath, null);
@@ -64,7 +64,7 @@ public class ClassPathIterator implements Iterator<ClassPathEntry> {
       delim = System.getProperty("path.separator");
     }
     StringTokenizer st = new StringTokenizer(classPath, delim);
-    List<File> fileList = new ArrayList<File>();
+    List<File> fileList = new ArrayList<>();
     while (st.hasMoreTokens()) {
       String part = (String) st.nextElement();
       boolean wildcard = false;

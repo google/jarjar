@@ -21,7 +21,7 @@ import com.tonicsystems.jarjar.util.JarProcessor;
 import java.io.IOException;
 
 class ResourceProcessor implements JarProcessor {
-  private PackageRemapper pr;
+  private final PackageRemapper pr;
 
   public ResourceProcessor(PackageRemapper pr) {
     this.pr = pr;
