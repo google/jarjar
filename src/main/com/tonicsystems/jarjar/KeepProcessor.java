@@ -67,7 +67,6 @@ class KeepProcessor extends Remapper implements JarProcessor {
   }
 
   private Set<String> curSet;
-  private byte[] buf = new byte[0x2000];
 
   @Override
   public boolean process(EntryStruct struct) throws IOException {
