@@ -1,0 +1,4 @@
+# Exemption reason: The ant build relies on dependencies in lib/ and predates allstar
+# Exemption timeframe: permanent
+optConfig:
+  optOut: true
