@@ -16,20 +16,20 @@
 
 package com.tonicsystems.jarjar;
 
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
 
 abstract class StringReader extends ClassVisitor {
   private int line = -1;
   private String className;
 
   public StringReader() {
-    super(Opcodes.ASM7);
+    super(Opcodes.ASM9);
   }
 
   public abstract void visitString(String className, String value, int line);
@@ -56,7 +56,7 @@ abstract class StringReader extends ClassVisitor {
   public FieldVisitor visitField(
       int access, String name, String desc, String signature, Object value) {
     handleObject(value);
-    return new FieldVisitor(Opcodes.ASM7) {
+    return new FieldVisitor(Opcodes.ASM9) {
       @Override
       public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
         return StringReader.this.visitAnnotation(desc, visible);
@@ -66,7 +66,7 @@ abstract class StringReader extends ClassVisitor {
 
   @Override
   public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
-    return new AnnotationVisitor(Opcodes.ASM7) {
+    return new AnnotationVisitor(Opcodes.ASM9) {
       @Override
       public void visit(String name, Object value) {
         handleObject(value);
@@ -87,7 +87,7 @@ abstract class StringReader extends ClassVisitor {
   @Override
   public MethodVisitor visitMethod(
       int access, String name, String desc, String signature, String[] exceptions) {
-    return new MethodVisitor(Opcodes.ASM7) {
+    return new MethodVisitor(Opcodes.ASM9) {
       @Override
       public void visitLdcInsn(Object cst) {
         handleObject(cst);

@@ -16,15 +16,15 @@
 
 package com.tonicsystems.jarjar.util;
 
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.Opcodes;
 
 public class GetNameClassWriter extends ClassVisitor {
   private String className;
 
   public GetNameClassWriter(int flags) {
-    super(Opcodes.ASM7, new ClassWriter(flags));
+    super(Opcodes.ASM9, new ClassWriter(flags));
   }
 
   @Override
