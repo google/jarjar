@@ -67,6 +67,7 @@ class MainProcessor implements JarProcessor {
         new JarTransformerChain(
             new RemappingClassTransformer[] {new RemappingClassTransformer(pr)}));
     processors.add(new ResourceProcessor(pr));
+    processors.add(new ServiceProcessor(pr));
     chain = new JarProcessorChain(processors.toArray(new JarProcessor[0]));
   }
 
