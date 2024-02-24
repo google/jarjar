@@ -16,7 +16,7 @@
 
 package com.tonicsystems.jarjar.util;
 
-import java.io.ByteArrayOutputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -24,9 +24,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
-import java.util.Enumeration;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
@@ -60,27 +59,12 @@ class IoUtil {
    */
   public static void copyZipWithoutEmptyDirectories(final File inputFile, final File outputFile)
       throws IOException {
-    final byte[] buf = new byte[0x2000];
-
-    final ZipFile inputZip = new ZipFile(inputFile);
-    final ZipOutputStream outputStream = new ZipOutputStream(new FileOutputStream(outputFile));
-    try {
-      // read a the entries of the input zip file and sort them
-      final Enumeration<? extends ZipEntry> e = inputZip.entries();
-      final ArrayList<ZipEntry> sortedList = new ArrayList<>();
-      while (e.hasMoreElements()) {
-        final ZipEntry entry = e.nextElement();
-        sortedList.add(entry);
-      }
-
-      Collections.sort(
-          sortedList,
-          new Comparator<ZipEntry>() {
-            @Override
-            public int compare(ZipEntry o1, ZipEntry o2) {
-              return o1.getName().compareTo(o2.getName());
-            }
-          });
+    try (ZipFile inputZip = new ZipFile(inputFile);
+        ZipOutputStream outputStream = bufferedZipOutput(outputFile)) {
+      ArrayList<? extends ZipEntry> sortedList =
+          inputZip.stream()
+              .sorted(Comparator.comparing(ZipEntry::getName))
+              .collect(Collectors.toCollection(ArrayList::new));
 
       // treat them again and write them in output, wenn they not are empty directories
       for (int i = sortedList.size() - 1; i >= 0; i--) {
@@ -103,17 +87,23 @@ class IoUtil {
         if (isEmptyDirectory) {
           sortedList.remove(inputEntry);
         } else {
-          final ZipEntry outputEntry = new ZipEntry(inputEntry);
-          outputStream.putNextEntry(outputEntry);
-          ByteArrayOutputStream baos = new ByteArrayOutputStream();
+          outputStream.putNextEntry(inputEntry);
           try (final InputStream is = inputZip.getInputStream(inputEntry)) {
-            IoUtil.pipe(is, baos, buf);
+            // 2024-02-23: Using a shared buffer had no measurable perf improvement
+            is.transferTo(outputStream);
           }
-          baos.writeTo(outputStream);
         }
       }
-    } finally {
-      outputStream.close();
     }
+  }
+
+  /**
+   * Create a ZipOutputStream with buffering.
+   *
+   * <p>Buffering is critical to performance because the ZIP format has a lot of small header
+   * segments, which each trigger an OS write call otherwise.
+   */
+  public static ZipOutputStream bufferedZipOutput(File file) throws IOException {
+    return new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
   }
 }

@@ -16,53 +16,45 @@
 
 package com.tonicsystems.jarjar.util;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
-import java.util.jar.JarOutputStream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+import java.util.zip.ZipOutputStream;
 
 public final class StandaloneJarProcessor {
   public static void run(File from, File to, JarProcessor proc) throws IOException {
-    byte[] buf = new byte[0x2000];
+    File tmpTo = File.createTempFile("jarjar", ".jar");
 
-    JarFile in = new JarFile(from);
-    final File tmpTo = File.createTempFile("jarjar", ".jar");
-    JarOutputStream out = new JarOutputStream(new FileOutputStream(tmpTo));
     Set<String> entries = new HashSet<>();
-    try {
-      EntryStruct struct = new EntryStruct();
-      Enumeration<JarEntry> e = in.entries();
-      while (e.hasMoreElements()) {
-        JarEntry entry = e.nextElement();
-        struct.name = entry.getName();
-        struct.time = entry.getTime();
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        IoUtil.pipe(in.getInputStream(entry), baos, buf);
-        struct.data = baos.toByteArray();
-        if (proc.process(struct)) {
-          if (entries.add(struct.name)) {
-            entry = new JarEntry(struct.name);
-            entry.setTime(struct.time);
-            entry.setCompressedSize(-1);
-            out.putNextEntry(entry);
-            out.write(struct.data);
-          } else if (struct.name.endsWith("/")) {
-            // TODO(chrisn): log
-          } else {
-            throw new IllegalArgumentException("Duplicate jar entries: " + struct.name);
-          }
+    try (ZipFile inZip = new ZipFile(from);
+        ZipOutputStream outZip = IoUtil.bufferedZipOutput(tmpTo)) {
+
+      for (Enumeration<? extends ZipEntry> e = inZip.entries(); e.hasMoreElements(); ) {
+        ZipEntry inEntry = e.nextElement();
+        EntryStruct struct = new EntryStruct();
+        struct.name = inEntry.getName();
+        struct.time = inEntry.getTime();
+        struct.data = inZip.getInputStream(inEntry).readAllBytes();
+        if (!proc.process(struct)) {
+          continue;
+        }
+
+        if (entries.add(struct.name)) {
+          ZipEntry outEntry = new ZipEntry(struct.name);
+          outEntry.setTime(struct.time);
+          outEntry.setCompressedSize(-1);
+          outZip.putNextEntry(outEntry);
+          outZip.write(struct.data);
+        } else if (struct.name.endsWith("/")) {
+          // TODO(chrisn): log
+        } else {
+          throw new IllegalArgumentException("Duplicate jar entries: " + struct.name);
         }
       }
-
-    } finally {
-      in.close();
-      out.close();
     }
 
     // delete the empty directories
