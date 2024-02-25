@@ -20,72 +20,85 @@ import com.tonicsystems.jarjar.util.EntryStruct;
 import com.tonicsystems.jarjar.util.JarProcessor;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.commons.ClassRemapper;
 import org.objectweb.asm.commons.Remapper;
 
-// TODO: this can probably be refactored into JarClassVisitor, etc.
-class KeepProcessor extends Remapper implements JarProcessor {
+/**
+ * First stage of "keep" directive processing.
+ *
+ * <p>This processor doesn't modify JAR entries in any way. Instead, it accumulates a dependency
+ * graph of the observed classes. {@link KeepPostProcessor} uses this graph to determine which
+ * classes can be deleted.
+ */
+final class KeepPreProcessor extends Remapper implements JarProcessor {
   private final ClassVisitor cv = new ClassRemapper(new EmptyClassVisitor(), this);
   private final List<Wildcard> wildcards;
-  private final List<String> roots = new ArrayList<>();
-  private final Map<String, Set<String>> depend = new HashMap<>();
 
-  public KeepProcessor(List<Keep> patterns) {
-    wildcards = PatternElement.createWildcards(patterns);
-  }
+  private final LinkedHashSet<String> matchedClasses = new LinkedHashSet<>();
+  private final LinkedHashMap<String, LinkedHashSet<String>> classToDeps = new LinkedHashMap<>();
+  private LinkedHashSet<String> activeClassDeps = null;
 
-  public boolean isEnabled() {
-    return !wildcards.isEmpty();
+  public KeepPreProcessor(List<Keep> patterns) {
+    this.wildcards = PatternElement.createWildcards(patterns);
   }
 
   public Set<String> getExcludes() {
-    Set<String> closure = new HashSet<>();
-    closureHelper(closure, roots);
-    Set<String> removable = new HashSet<>(depend.keySet());
-    removable.removeAll(closure);
-    return removable;
+    LinkedHashSet<String> keepClasses = new LinkedHashSet<>();
+    collectTransitiveDeps(keepClasses, this.matchedClasses);
+
+    LinkedHashSet<String> excludeClasses = new LinkedHashSet<>(classToDeps.keySet());
+    excludeClasses.removeAll(keepClasses);
+    return excludeClasses;
   }
 
-  private void closureHelper(Set<String> closure, Collection<String> process) {
-    if (process == null) {
+  private void collectTransitiveDeps(LinkedHashSet<String> result, Collection<String> roots) {
+    if (roots == null) {
       return;
     }
-    for (String name : process) {
-      if (closure.add(name)) {
-        closureHelper(closure, depend.get(name));
+
+    for (String name : roots) {
+      if (result.add(name)) {
+        collectTransitiveDeps(result, classToDeps.get(name));
       }
     }
   }
-
-  private Set<String> curSet;
 
   @Override
   public boolean process(EntryStruct struct) throws IOException {
-    try {
-      if (struct.isClass()) {
-        String name = struct.name.substring(0, struct.name.length() - 6);
-        for (Wildcard wildcard : wildcards) {
-          if (wildcard.matches(name)) {
-            roots.add(name);
-          }
-        }
-        depend.put(name, curSet = new HashSet<>());
-        new ClassReader(new ByteArrayInputStream(struct.data))
-            .accept(cv, ClassReader.EXPAND_FRAMES);
-        curSet.remove(name);
+    if (this.activeClassDeps != null) {
+      throw new IllegalStateException("KeepProcessor::process is not reentrant");
+    }
+
+    if (!struct.isClass()) {
+      return true;
+    }
+
+    String activeClass = struct.name.substring(0, struct.name.length() - 6);
+
+    for (Wildcard wildcard : wildcards) {
+      if (wildcard.matches(activeClass)) {
+        this.matchedClasses.add(activeClass);
       }
+    }
+
+    try {
+      this.activeClassDeps = new LinkedHashSet<>();
+      new ClassReader(new ByteArrayInputStream(struct.data)).accept(cv, ClassReader.EXPAND_FRAMES);
+      this.activeClassDeps.remove(activeClass);
+      this.classToDeps.put(activeClass, this.activeClassDeps);
     } catch (Exception e) {
       System.err.println("Error reading " + struct.name + ": " + e.getMessage());
+    } finally {
+      this.activeClassDeps = null;
     }
+
     return true;
   }
 
@@ -94,7 +107,8 @@ class KeepProcessor extends Remapper implements JarProcessor {
     if (key.startsWith("java/") || key.startsWith("javax/")) {
       return null;
     }
-    curSet.add(key);
+
+    this.activeClassDeps.add(key);
     return null;
   }
 
@@ -118,6 +132,7 @@ class KeepProcessor extends Remapper implements JarProcessor {
     if (value.isEmpty()) {
       return false;
     }
+
     for (int i = 0, len = value.length(); i < len; i++) {
       char c = value.charAt(i);
       if (c != '.' && !Character.isJavaIdentifierPart(c)) {

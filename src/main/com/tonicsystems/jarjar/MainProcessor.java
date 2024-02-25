@@ -34,7 +34,7 @@ import java.util.Set;
 final class MainProcessor implements JarProcessor {
   private final boolean verbose;
   private final JarProcessorChain chain;
-  private final KeepProcessor kp;
+  private final KeepPreProcessor kp;
   private final Map<String, String> renames = new HashMap<>();
 
   public MainProcessor(List<PatternElement> patterns, boolean verbose, boolean skipManifest) {
@@ -53,7 +53,7 @@ final class MainProcessor implements JarProcessor {
     }
 
     PackageRemapper pr = new PackageRemapper(ruleList, verbose);
-    kp = keepList.isEmpty() ? null : new KeepProcessor(keepList);
+    kp = keepList.isEmpty() ? null : new KeepPreProcessor(keepList);
 
     List<JarProcessor> processors = new ArrayList<>();
     processors.add(new ManifestProcessor(pr, skipManifest));
@@ -75,7 +75,7 @@ final class MainProcessor implements JarProcessor {
     }
     Set<String> excludes = getExcludes();
     if (!excludes.isEmpty()) {
-      StandaloneJarProcessor.run(file, file, new ExcludeProcessor(excludes, verbose));
+      StandaloneJarProcessor.run(file, file, new KeepPostProcessor(excludes, verbose));
     }
   }
 

@@ -21,11 +21,16 @@ import com.tonicsystems.jarjar.util.JarProcessor;
 import java.io.IOException;
 import java.util.Set;
 
-class ExcludeProcessor implements JarProcessor {
+/**
+ * Second stage of "keep" directive processing.
+ *
+ * <p>This processor deletes classes identified as unnecessary by {@link KeepPreProcessor}.
+ */
+final class KeepPostProcessor implements JarProcessor {
   private final Set<String> excludes;
   private final boolean verbose;
 
-  public ExcludeProcessor(Set<String> excludes, boolean verbose) {
+  public KeepPostProcessor(Set<String> excludes, boolean verbose) {
     this.excludes = excludes;
     this.verbose = verbose;
   }
