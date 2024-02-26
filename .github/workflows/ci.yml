@@ -47,7 +47,7 @@ jobs:
           distribution: 'zulu'
       - name: 'Install'
         shell: bash
-        run: ant build
+        run: ant compile
       - name: 'Test'
         shell: bash
         run: ant test
