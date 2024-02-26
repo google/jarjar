@@ -18,11 +18,9 @@ package com.tonicsystems.jarjar.util;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.stream.Collectors;
@@ -31,24 +29,6 @@ import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
 class IoUtil {
-  private IoUtil() {}
-
-  public static void pipe(InputStream is, OutputStream out, byte[] buf) throws IOException {
-    for (; ; ) {
-      int amt = is.read(buf);
-      if (amt < 0) {
-        break;
-      }
-      out.write(buf, 0, amt);
-    }
-  }
-
-  public static void copy(File from, File to, byte[] buf) throws IOException {
-    try (InputStream in = new FileInputStream(from);
-        OutputStream out = new FileOutputStream(to)) {
-      pipe(in, out, buf);
-    }
-  }
 
   /**
    * Create a copy of an zip file without its empty directories.
@@ -106,4 +86,6 @@ class IoUtil {
   public static ZipOutputStream bufferedZipOutput(File file) throws IOException {
     return new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
   }
+
+  private IoUtil() {}
 }
