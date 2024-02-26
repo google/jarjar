@@ -5,8 +5,8 @@
 
     <property name="javadoc.access" value="public"/>
 
-    <property name="compile.source" value="1.6"/>
-    <property name="compile.target" value="1.6"/>
+    <property name="compile.source" value="11"/>
+    <property name="compile.target" value="11"/>
     <property name="compile.bootclasspath" value=""/>
     <property name="compile.extdirs" value=""/>
 
@@ -95,8 +95,8 @@
         <mkdir dir="dist"/>
         <jarjar jarfile="${jarfile}">
             <fileset dir="build/main"/>
-            <zipfileset src="lib/asm-7.3.1.jar"/>
-            <zipfileset src="lib/asm-commons-7.3.1.jar">
+            <zipfileset src="lib/asm-9.6.jar"/>
+            <zipfileset src="lib/asm-commons-9.6.jar">
                 <include name="org/objectweb/asm/commons/*Remapper.class"/>
                 <include name="org/objectweb/asm/commons/LocalVariablesSorter.class"/>
             </zipfileset>
@@ -208,8 +208,8 @@
         <delete file="${test.jar}"/>
         <jarjar2 jarfile="${test.jar}">
             <fileset dir="build/main"/>
-            <zipfileset src="lib/asm-7.3.1.jar"/>
-            <zipfileset src="lib/asm-commons-7.3.1.jar"/>
+            <zipfileset src="lib/asm-9.6.jar"/>
+            <zipfileset src="lib/asm-commons-9.6.jar"/>
             <rule pattern="org.objectweb.asm.**" result="com.tonicsystems.jarjar.asm.@1"/>
         </jarjar2>
         <delete file="${test.jar}"/>
