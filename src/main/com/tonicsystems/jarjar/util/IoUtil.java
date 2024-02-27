@@ -20,62 +20,10 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.stream.Collectors;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
+/** Utils for IO. */
 class IoUtil {
-
-  /**
-   * Create a copy of an zip file without its empty directories.
-   *
-   * @param inputFile the input file
-   * @param outputFile the output file
-   * @throws IOException
-   */
-  public static void copyZipWithoutEmptyDirectories(final File inputFile, final File outputFile)
-      throws IOException {
-    try (ZipFile inputZip = new ZipFile(inputFile);
-        ZipOutputStream outputStream = bufferedZipOutput(outputFile)) {
-      ArrayList<? extends ZipEntry> sortedList =
-          inputZip.stream()
-              .sorted(Comparator.comparing(ZipEntry::getName))
-              .collect(Collectors.toCollection(ArrayList::new));
-
-      // treat them again and write them in output, wenn they not are empty directories
-      for (int i = sortedList.size() - 1; i >= 0; i--) {
-        final ZipEntry inputEntry = sortedList.get(i);
-        final String name = inputEntry.getName();
-        final boolean isEmptyDirectory;
-        if (inputEntry.isDirectory()) {
-          if (i == sortedList.size() - 1) {
-            // no item afterwards; it was an empty directory
-            isEmptyDirectory = true;
-          } else {
-            final String nextName = sortedList.get(i + 1).getName();
-            isEmptyDirectory = !nextName.startsWith(name);
-          }
-        } else {
-          isEmptyDirectory = false;
-        }
-
-        // write the entry
-        if (isEmptyDirectory) {
-          sortedList.remove(inputEntry);
-        } else {
-          outputStream.putNextEntry(inputEntry);
-          try (final InputStream is = inputZip.getInputStream(inputEntry)) {
-            // 2024-02-23: Using a shared buffer had no measurable perf improvement
-            is.transferTo(outputStream);
-          }
-        }
-      }
-    }
-  }
 
   /**
    * Create a ZipOutputStream with buffering.

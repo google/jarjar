@@ -1,11 +1,11 @@
 /*
- * Copyright 0004 Google Inc.
+ * Copyright 2024 Google Inc.
  *
- * Licensed under the Apache License, Version 0.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-0.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,6 +19,7 @@ package com.tonicsystems.jarjar.util;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import java.io.File;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -27,6 +28,7 @@ import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 import junit.framework.TestCase;
 
+@SuppressWarnings("JdkImmutableCollections")
 public class StandaloneJarProcessorTest extends TestCase {
 
   public void testProcessor_canDeleteEntries() throws Exception {
@@ -60,10 +62,10 @@ public class StandaloneJarProcessorTest extends TestCase {
           return true;
         },
         List.of(
-            createEntry("qux/bar/B.class", "Hello"),
+            createEntry("qux/", "qux"),
+            createEntry("qux/bar/", "qux"),
             createEntry("qux/bar/A.class", "Hello"),
-            createEntry("qux/bar/", "foo"),
-            createEntry("qux/", "foo")));
+            createEntry("qux/bar/B.class", "Hello")));
   }
 
   public void testDuplicateEntries_filesAreReported() throws Exception {
@@ -98,12 +100,12 @@ public class StandaloneJarProcessorTest extends TestCase {
           return true;
         },
         List.of(
-            createEntry("zaf/bar/A.class", "Hello"),
-            createEntry("zaf/bar/", ""),
-            createEntry("zaf/", ""),
-            createEntry("qux/bar/B.class", "Hello"),
+            createEntry("qux/", ""),
             createEntry("qux/bar/", ""),
-            createEntry("qux/", "")));
+            createEntry("qux/bar/B.class", "Hello"),
+            createEntry("zaf/", ""),
+            createEntry("zaf/bar/", ""),
+            createEntry("zaf/bar/A.class", "Hello")));
   }
 
   public void testOutput_emptyDirsAreDeleted() throws Exception {
@@ -120,10 +122,10 @@ public class StandaloneJarProcessorTest extends TestCase {
           return true;
         },
         List.of(
-            createEntry("zaf/bar/A.class", "Hello"),
-            createEntry("qux/bar/B.class", "Hello"),
+            createEntry("qux/", ""),
             createEntry("qux/bar/", ""),
-            createEntry("qux/", "")));
+            createEntry("qux/bar/B.class", "Hello"),
+            createEntry("zaf/bar/A.class", "Hello")));
   }
 
   private void assertJarTransformation(
@@ -146,6 +148,7 @@ public class StandaloneJarProcessorTest extends TestCase {
   private EntryStruct createEntry(String name, String data) {
     EntryStruct entry = new EntryStruct();
     entry.name = name;
+    entry.time = ARBITRARY_INSTANT.toEpochMilli();
     entry.data = data.getBytes(UTF_8);
     return entry;
   }
@@ -155,6 +158,7 @@ public class StandaloneJarProcessorTest extends TestCase {
     try (ZipOutputStream outZip = IoUtil.bufferedZipOutput(result)) {
       for (EntryStruct entryStruct : entryStructs) {
         ZipEntry outEntry = new ZipEntry(entryStruct.name);
+        outEntry.setTime(entryStruct.time);
         outZip.putNextEntry(outEntry);
         outZip.write(entryStruct.data);
       }
@@ -167,14 +171,17 @@ public class StandaloneJarProcessorTest extends TestCase {
     try (ZipFile inZip = new ZipFile(jar)) {
       for (Enumeration<? extends ZipEntry> e = inZip.entries(); e.hasMoreElements(); ) {
         ZipEntry inEntry = e.nextElement();
-        result.add(
-            createEntry(
-                inEntry.getName(),
-                new String(inZip.getInputStream(inEntry).readAllBytes(), UTF_8)));
+        EntryStruct entryStruct = new EntryStruct();
+        entryStruct.name = inEntry.getName();
+        entryStruct.time = inEntry.getTime();
+        entryStruct.data = inZip.getInputStream(inEntry).readAllBytes();
+        result.add(entryStruct);
       }
     }
     return result;
   }
+
+  private static final Instant ARBITRARY_INSTANT = Instant.parse("2024-02-27T10:15:30.00Z");
 
   public StandaloneJarProcessorTest(String name) {
     super(name);

@@ -16,7 +16,8 @@
 
 package com.tonicsystems.jarjar.util;
 
-public class EntryStruct {
+/** A mutable representation of a JAR entry. */
+public final class EntryStruct {
   public byte[] data;
   public String name;
   public long time;
@@ -31,5 +32,9 @@ public class EntryStruct {
       return false;
     }
     return true;
+  }
+
+  public boolean isDir() {
+    return name.endsWith("/");
   }
 }
