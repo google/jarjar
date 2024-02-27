@@ -181,7 +181,7 @@ public class StandaloneJarProcessorTest extends TestCase {
     return result;
   }
 
-  private static final Instant ARBITRARY_INSTANT = Instant.parse("2024-02-27T10:15:30.00Z");
+  private static final Instant ARBITRARY_INSTANT = Instant.parse("2024-02-27T08:21:50+00:00");
 
   public StandaloneJarProcessorTest(String name) {
     super(name);
