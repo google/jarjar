@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-class MainProcessor implements JarProcessor {
+final class MainProcessor implements JarProcessor {
   private final boolean verbose;
   private final JarProcessorChain chain;
   private final KeepProcessor kp;
@@ -56,9 +56,7 @@ class MainProcessor implements JarProcessor {
     kp = keepList.isEmpty() ? null : new KeepProcessor(keepList);
 
     List<JarProcessor> processors = new ArrayList<>();
-    if (skipManifest) {
-      processors.add(ManifestProcessor.getInstance());
-    }
+    processors.add(new ManifestProcessor(pr, skipManifest));
     if (kp != null) {
       processors.add(kp);
     }
@@ -102,6 +100,7 @@ class MainProcessor implements JarProcessor {
    * @return <code>true</code> if the entry is to include in the output jar
    * @throws IOException
    */
+  @Override
   public boolean process(EntryStruct struct) throws IOException {
     String name = struct.name;
     boolean keepIt = chain.process(struct);
