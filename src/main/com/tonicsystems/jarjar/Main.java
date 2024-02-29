@@ -29,6 +29,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.List;
+import java.util.Locale;
 
 public class Main {
 
@@ -53,7 +54,6 @@ public class Main {
     return sb.toString();
   }
 
-
   public static void main(String[] args) throws Exception {
     MainUtil.runMain(new Main(), args, "help");
   }
@@ -70,7 +70,6 @@ public class Main {
         .run(cp, new PrintWriter(new BufferedWriter(new OutputStreamWriter(System.out, UTF_8))));
   }
 
-  // TODO: make level an enum
   public void find(String level, String cp1, String cp2) throws IOException {
     if (level == null || cp1 == null) {
       throw new IllegalArgumentException("level and cp1 are required");
@@ -78,14 +77,7 @@ public class Main {
     if (cp2 == null) {
       cp2 = cp1;
     }
-    int levelFlag;
-    if ("class".equals(level)) {
-      levelFlag = DepHandler.LEVEL_CLASS;
-    } else if ("jar".equals(level)) {
-      levelFlag = DepHandler.LEVEL_JAR;
-    } else {
-      throw new IllegalArgumentException("unknown level " + level);
-    }
+    DepHandler.Level levelFlag = DepHandler.Level.valueOf(level.toUpperCase(Locale.ROOT));
     PrintWriter w = new PrintWriter(new BufferedWriter(new OutputStreamWriter(System.out, UTF_8)));
     DepHandler handler = new TextDepHandler(w, levelFlag);
     new DepFind().run(cp1, cp2, handler);
