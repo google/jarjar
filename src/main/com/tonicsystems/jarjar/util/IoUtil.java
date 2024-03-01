@@ -20,10 +20,14 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.nio.charset.Charset;
 import java.util.zip.ZipOutputStream;
 
 /** Utils for IO. */
-class IoUtil {
+public final class IoUtil {
 
   /**
    * Create a ZipOutputStream with buffering.
@@ -33,6 +37,10 @@ class IoUtil {
    */
   public static ZipOutputStream bufferedZipOutput(File file) throws IOException {
     return new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
+  }
+
+  public static PrintWriter bufferedPrintWriter(OutputStream stream, Charset charset) {
+    return new PrintWriter(new OutputStreamWriter(new BufferedOutputStream(stream), charset));
   }
 
   private IoUtil() {}
