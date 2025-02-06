@@ -19,6 +19,8 @@ package com.tonicsystems.jarjar.util;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import java.io.File;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -27,6 +29,14 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 import junit.framework.TestCase;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.commons.Remapper;
+import org.objectweb.asm.util.Printer;
+import org.objectweb.asm.util.Textifier;
+import org.objectweb.asm.util.TraceClassVisitor;
 
 @SuppressWarnings("JdkImmutableCollections")
 public class StandaloneJarProcessorTest extends TestCase {
@@ -128,6 +138,31 @@ public class StandaloneJarProcessorTest extends TestCase {
             createEntry("zaf/bar/A.class", "Hello")));
   }
 
+  public void testProcessor_multiReleaseEntriesArePreserved() throws Exception {
+    assertJarTransformation(
+        List.of(
+            createEntry("foo/bar/A.class", createClass("foo/bar/A")),
+            createEntry("META-INF/versions/11/foo/bar/A.class", createClass("foo/bar/A")),
+            createEntry("META-INF/versions/21/foo/bar/A.class", createClass("foo/bar/A"))),
+        new JarTransformerChain(
+            new RemappingClassTransformer[] {
+              new RemappingClassTransformer(
+                  new Remapper() {
+                    @Override
+                    public String map(final String internalName) {
+                      if (internalName.equals("foo/bar/A")) {
+                        return "foo/baz/B";
+                      }
+                      return internalName;
+                    }
+                  })
+            }),
+        List.of(
+            createEntry("META-INF/versions/11/foo/baz/B.class", createClass("foo/baz/B")),
+            createEntry("META-INF/versions/21/foo/baz/B.class", createClass("foo/baz/B")),
+            createEntry("foo/baz/B.class", createClass("foo/baz/B"))));
+  }
+
   private void assertJarTransformation(
       List<EntryStruct> inEntries, JarProcessor processor, List<EntryStruct> expectedEntries)
       throws Exception {
@@ -141,15 +176,33 @@ public class StandaloneJarProcessorTest extends TestCase {
       EntryStruct actualEntry = actualEntries.get(i);
       assertEquals(expectedEntry.name, actualEntry.name);
       assertEquals(expectedEntry.time, actualEntry.time);
-      assertEquals(new String(expectedEntry.data, UTF_8), new String(actualEntry.data, UTF_8));
+      assertEquals(printData(expectedEntry.data), printData(actualEntry.data));
     }
   }
 
+  private String printData(byte[] data) {
+    Printer textifier = new Textifier();
+    StringWriter sw = new StringWriter();
+    try {
+      new ClassReader(data)
+          .accept(
+              new TraceClassVisitor(null, textifier, new PrintWriter(sw, true)),
+              ClassReader.SKIP_CODE | ClassReader.SKIP_FRAMES);
+    } catch (IndexOutOfBoundsException e) {
+      return new String(data, UTF_8);
+    }
+    return sw.toString();
+  }
+
   private EntryStruct createEntry(String name, String data) {
+    return createEntry(name, data.getBytes(UTF_8));
+  }
+
+  private EntryStruct createEntry(String name, byte[] data) {
     EntryStruct entry = new EntryStruct();
     entry.name = name;
     entry.time = ARBITRARY_INSTANT.toEpochMilli();
-    entry.data = data.getBytes(UTF_8);
+    entry.data = data;
     return entry;
   }
 
@@ -179,6 +232,21 @@ public class StandaloneJarProcessorTest extends TestCase {
       }
     }
     return result;
+  }
+
+  private byte[] createClass(String name) {
+    ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+    classWriter.visit(Opcodes.V1_8, Opcodes.ACC_SUPER, name, null, "java/lang/Object", null);
+
+    MethodVisitor methodVisitor = classWriter.visitMethod(0, "<init>", "()V", null, null);
+    methodVisitor.visitCode();
+    methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
+    methodVisitor.visitMethodInsn(
+        Opcodes.INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false);
+    methodVisitor.visitInsn(Opcodes.RETURN);
+    methodVisitor.visitEnd();
+
+    return classWriter.toByteArray();
   }
 
   private static final Instant ARBITRARY_INSTANT = Instant.parse("2024-02-27T10:15:30.00Z");
