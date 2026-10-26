@@ -41,7 +41,7 @@ public abstract class JarTransformer implements JarProcessor {
       }
       if (updateData) {
         struct.data = w.toByteArray();
-        struct.name = replaceName(struct.name, w.getClassName());
+        struct.name = replaceName(struct, w.getClassName());
       }
     }
     return true;
@@ -49,11 +49,8 @@ public abstract class JarTransformer implements JarProcessor {
 
   protected abstract ClassVisitor transform(ClassVisitor v);
 
-  private static String replaceName(String name, String className) {
-    String prefix =
-        name.startsWith("META-INF/versions/")
-            ? name.substring(0, name.indexOf('/', "META-INF/versions/".length()) + 1)
-            : "";
+  private static String replaceName(EntryStruct struct, String className) {
+    String prefix = struct.name.substring(0, struct.versionPrefixEnd());
     return prefix + className.replace('.', '/') + ".class";
   }
 }

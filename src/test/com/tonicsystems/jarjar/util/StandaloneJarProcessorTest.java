@@ -18,9 +18,11 @@ package com.tonicsystems.jarjar.util;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
+import com.tonicsystems.jarjar.Main;
 import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.nio.file.Files;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -163,13 +165,120 @@ public class StandaloneJarProcessorTest extends TestCase {
             createEntry("foo/baz/B.class", createClass("foo/baz/B"))));
   }
 
-  private void assertJarTransformation(
-      List<EntryStruct> inEntries, JarProcessor processor, List<EntryStruct> expectedEntries)
-      throws Exception {
-    File actualJar = File.createTempFile("actual", "jar");
-    StandaloneJarProcessor.run(writeJar(inEntries), actualJar, processor);
-    List<EntryStruct> actualEntries = readJar(actualJar);
+  public void testProcessor_multiReleaseZap() throws Exception {
+    File inJar =
+        writeJar(
+            List.of(
+                createEntry("foo/bar/Kept.class", createClass("foo/bar/Kept")),
+                createEntry("META-INF/versions/11/foo/bar/Kept.class", createClass("foo/bar/Kept")),
+                createEntry("foo/bar/Zapped.class", createClass("foo/bar/Zapped")),
+                createEntry(
+                    "META-INF/versions/11/foo/bar/Zapped.class", createClass("foo/bar/Zapped"))));
+    File outJar = File.createTempFile("actual", "jar");
+    File rulesFile = File.createTempFile("rules", "txt");
+    Files.writeString(
+        rulesFile.toPath(), "zap foo.bar.Zapped\nrule foo.bar.** foo.baz.@1\n", UTF_8);
 
+    Main.main(new String[] {"process", rulesFile.getPath(), inJar.getPath(), outJar.getPath()});
+
+    assertJarEntriesEqual(
+        List.of(
+            createEntry("META-INF/versions/11/foo/baz/Kept.class", createClass("foo/baz/Kept")),
+            createEntry("foo/baz/Kept.class", createClass("foo/baz/Kept"))),
+        readJar(outJar));
+  }
+
+  public void testProcessor_multiReleaseKeep_transitiveAndVersionOnly() throws Exception {
+    File inJar =
+        writeJar(
+            List.of(
+                createEntry(
+                    "META-INF/versions/11/foo/bar/Dep.class",
+                    createClass("foo/bar/Dep", "foo/bar/Dep$Helper11")),
+                createEntry(
+                    "META-INF/versions/11/foo/bar/Dep$Helper11.class",
+                    createClass("foo/bar/Dep$Helper11")),
+                createEntry(
+                    "META-INF/versions/11/foo/bar/Unused.class", createClass("foo/bar/Unused")),
+                createEntry(
+                    "META-INF/versions/17/foo/bar/Only17.class", createClass("foo/bar/Only17")),
+                createEntry("META-INF/versions/21/foo/bar/Dep.class", createClass("foo/bar/Dep")),
+                createEntry("foo/bar/Root.class", createClass("foo/bar/Root", "foo/bar/Dep")),
+                createEntry("foo/bar/Dep.class", createClass("foo/bar/Dep")),
+                createEntry("foo/bar/Unused.class", createClass("foo/bar/Unused"))));
+    File outJar = File.createTempFile("actual", "jar");
+    File rulesFile = File.createTempFile("rules", "txt");
+    Files.writeString(
+        rulesFile.toPath(),
+        "keep foo.bar.Root\nkeep foo.bar.Only17\nrule foo.bar.** foo.baz.@1\n",
+        UTF_8);
+
+    Main.main(new String[] {"process", rulesFile.getPath(), inJar.getPath(), outJar.getPath()});
+
+    assertJarEntriesEqual(
+        List.of(
+            createEntry(
+                "META-INF/versions/11/foo/baz/Dep$Helper11.class",
+                createClass("foo/baz/Dep$Helper11")),
+            createEntry(
+                "META-INF/versions/11/foo/baz/Dep.class",
+                createClass("foo/baz/Dep", "foo/baz/Dep$Helper11")),
+            createEntry("META-INF/versions/17/foo/baz/Only17.class", createClass("foo/baz/Only17")),
+            createEntry("META-INF/versions/21/foo/baz/Dep.class", createClass("foo/baz/Dep")),
+            createEntry("foo/baz/Dep.class", createClass("foo/baz/Dep")),
+            createEntry("foo/baz/Root.class", createClass("foo/baz/Root", "foo/baz/Dep"))),
+        readJar(outJar));
+  }
+
+  public void testProcessor_multiReleaseKeep_versionOnlyDoesNotDeleteRelocatedCollision()
+      throws Exception {
+    File inJar =
+        writeJar(
+            List.of(
+                createEntry("META-INF/versions/17/old/Only.class", createClass("old/Only")),
+                createEntry("other/Only.class", createClass("other/Only"))));
+    File outJar = File.createTempFile("actual", "jar");
+    File rulesFile = File.createTempFile("rules", "txt");
+    Files.writeString(
+        rulesFile.toPath(), "keep other.**\nrule old.** shaded.@1\nrule other.** old.@1\n", UTF_8);
+
+    Main.main(new String[] {"process", rulesFile.getPath(), inJar.getPath(), outJar.getPath()});
+
+    assertJarEntriesEqual(
+        List.of(createEntry("old/Only.class", createClass("old/Only"))), readJar(outJar));
+  }
+
+  public void testEntryStruct_versionPrefixParsing() {
+    assertEquals("foo/Bar", createEntry("foo/Bar.class", "").className());
+    assertEquals("foo/Bar", createEntry("META-INF/versions/9/foo/Bar.class", "").className());
+    assertEquals("foo/Bar", createEntry("META-INF/versions/10/foo/Bar.class", "").className());
+    assertEquals(
+        "module-info", createEntry("META-INF/versions/21/module-info.class", "").className());
+    assertEquals(
+        "META-INF/versions/Foo", createEntry("META-INF/versions/Foo.class", "").className());
+    assertEquals(
+        "META-INF/versions//foo/Bar",
+        createEntry("META-INF/versions//foo/Bar.class", "").className());
+    assertEquals(
+        "META-INF/versions/0/foo/Bar",
+        createEntry("META-INF/versions/0/foo/Bar.class", "").className());
+    assertEquals(
+        "META-INF/versions/09/foo/Bar",
+        createEntry("META-INF/versions/09/foo/Bar.class", "").className());
+    assertEquals(
+        "META-INF/versions/abc/foo/Bar",
+        createEntry("META-INF/versions/abc/foo/Bar.class", "").className());
+    try {
+      createEntry("META-INF/MANIFEST.MF", "").className();
+    } catch (IllegalStateException expected) {
+      assertEquals("Not a class entry: META-INF/MANIFEST.MF", expected.getMessage());
+      return;
+    }
+    fail("Expected IllegalStateException");
+  }
+
+  private void assertJarEntriesEqual(
+      List<EntryStruct> expectedEntries, List<EntryStruct> actualEntries) {
     assertEquals(expectedEntries.size(), actualEntries.size());
     for (int i = 0; i < expectedEntries.size(); i++) {
       EntryStruct expectedEntry = expectedEntries.get(i);
@@ -178,6 +287,14 @@ public class StandaloneJarProcessorTest extends TestCase {
       assertEquals(expectedEntry.time, actualEntry.time);
       assertEquals(printData(expectedEntry.data), printData(actualEntry.data));
     }
+  }
+
+  private void assertJarTransformation(
+      List<EntryStruct> inEntries, JarProcessor processor, List<EntryStruct> expectedEntries)
+      throws Exception {
+    File actualJar = File.createTempFile("actual", "jar");
+    StandaloneJarProcessor.run(writeJar(inEntries), actualJar, processor);
+    assertJarEntriesEqual(expectedEntries, readJar(actualJar));
   }
 
   private String printData(byte[] data) {
@@ -235,8 +352,16 @@ public class StandaloneJarProcessorTest extends TestCase {
   }
 
   private byte[] createClass(String name) {
+    return createClass(name, /* referencedType= */ null);
+  }
+
+  private byte[] createClass(String name, String referencedType) {
     ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
     classWriter.visit(Opcodes.V1_8, Opcodes.ACC_SUPER, name, null, "java/lang/Object", null);
+
+    if (referencedType != null) {
+      classWriter.visitField(0, "dep", "L" + referencedType + ";", null, null).visitEnd();
+    }
 
     MethodVisitor methodVisitor = classWriter.visitMethod(0, "<init>", "()V", null, null);
     methodVisitor.visitCode();
