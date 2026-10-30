@@ -19,6 +19,7 @@ package com.tonicsystems.jarjar.util;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import java.io.File;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.time.Instant;
@@ -227,7 +228,9 @@ public class StandaloneJarProcessorTest extends TestCase {
         EntryStruct entryStruct = new EntryStruct();
         entryStruct.name = inEntry.getName();
         entryStruct.time = inEntry.getTime();
-        entryStruct.data = inZip.getInputStream(inEntry).readAllBytes();
+        try (InputStream in = inZip.getInputStream(inEntry)) {
+          entryStruct.data = in.readAllBytes();
+        }
         result.add(entryStruct);
       }
     }

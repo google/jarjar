@@ -18,6 +18,7 @@ package com.tonicsystems.jarjar.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -38,7 +39,9 @@ public final class StandaloneJarProcessor {
         EntryStruct outEntry = new EntryStruct();
         outEntry.name = inEntry.getName();
         outEntry.time = inEntry.getTime();
-        outEntry.data = inZip.getInputStream(inEntry).readAllBytes();
+        try (InputStream in = inZip.getInputStream(inEntry)) {
+          outEntry.data = in.readAllBytes();
+        }
 
         if (!proc.process(outEntry)) {
           continue; // Skip any inputs dropped by the transformation rules
