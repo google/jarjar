@@ -16,6 +16,8 @@
 
 package com.tonicsystems.jarjar;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import com.tonicsystems.jarjar.util.EntryStruct;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -70,6 +72,78 @@ public class ManifestProcessorTest extends TestCase {
             "Main-Class", "bar.Main",
             "Other-Class", "foo.Other"),
         new Manifest(new ByteArrayInputStream(struct.data)));
+  }
+
+  public void testProcess_noMainClass_preservesBytesVerbatim() throws Exception {
+    Rule rule = new Rule();
+    rule.setPattern("foo.**");
+    rule.setResult("bar.@1");
+    PackageRemapper remapper = new PackageRemapper(Arrays.asList(rule), false);
+    ManifestProcessor processor = new ManifestProcessor(remapper, false);
+
+    byte[] original = "Created-By: custom-tool\n\n".getBytes(UTF_8);
+    EntryStruct struct = new EntryStruct();
+    struct.name = "META-INF/MANIFEST.MF";
+    struct.data = original;
+
+    assertTrue(processor.process(struct));
+    assertSame(original, struct.data);
+  }
+
+  public void testProcess_unmappedMainClass_preservesBytesVerbatim() throws Exception {
+    Rule rule = new Rule();
+    rule.setPattern("foo.**");
+    rule.setResult("bar.@1");
+    PackageRemapper remapper = new PackageRemapper(Arrays.asList(rule), false);
+    ManifestProcessor processor = new ManifestProcessor(remapper, false);
+
+    byte[] original =
+        serializeManifest(
+            createManifest(
+                "Manifest-Version", "1.0",
+                "Main-Class", "other.Main"));
+    EntryStruct struct = new EntryStruct();
+    struct.name = "META-INF/MANIFEST.MF";
+    struct.data = original;
+
+    assertTrue(processor.process(struct));
+    assertSame(original, struct.data);
+  }
+
+  public void testProcess_remapMainClass_withoutManifestVersion_retainsAttributes()
+      throws Exception {
+    Rule rule = new Rule();
+    rule.setPattern("foo.**");
+    rule.setResult("bar.@1");
+    PackageRemapper remapper = new PackageRemapper(Arrays.asList(rule), false);
+    ManifestProcessor processor = new ManifestProcessor(remapper, false);
+
+    EntryStruct struct = new EntryStruct();
+    struct.name = "META-INF/MANIFEST.MF";
+    struct.data = "Main-Class: foo.Main\nCreated-By: custom-tool\n\n".getBytes(UTF_8);
+
+    assertTrue(processor.process(struct));
+    assertEquals(
+        createManifest(
+            "Manifest-Version", "1.0",
+            "Main-Class", "bar.Main",
+            "Created-By", "custom-tool"),
+        new Manifest(new ByteArrayInputStream(struct.data)));
+  }
+
+  public void testMainProcessor_noRuleDirectives_ignoresNonStandardManifest() throws Exception {
+    Zap zap = new Zap();
+    zap.setPattern("foo.**");
+    MainProcessor processor =
+        new MainProcessor(Arrays.asList(zap), /* verbose= */ false, /* skipManifest= */ false);
+
+    byte[] nonStandard = "# comment line not accepted by java.util.jar.Manifest\n".getBytes(UTF_8);
+    EntryStruct struct = new EntryStruct();
+    struct.name = "META-INF/MANIFEST.MF";
+    struct.data = nonStandard;
+
+    assertTrue(processor.process(struct));
+    assertSame(nonStandard, struct.data);
   }
 
   private Manifest createManifest(String... keyThenValue) {
