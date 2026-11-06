@@ -20,7 +20,6 @@ import com.tonicsystems.jarjar.util.EntryStruct;
 import com.tonicsystems.jarjar.util.JarProcessor;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -36,7 +35,8 @@ import org.objectweb.asm.commons.Remapper;
 class KeepProcessor extends Remapper implements JarProcessor {
   private final ClassVisitor cv = new ClassRemapper(new EmptyClassVisitor(), this);
   private final List<Wildcard> wildcards;
-  private final List<String> roots = new ArrayList<>();
+  private final Set<String> roots = new HashSet<>();
+  private final Set<String> entries = new HashSet<>();
   private final Map<String, Set<String>> depend = new HashMap<>();
 
   public KeepProcessor(List<Keep> patterns) {
@@ -50,7 +50,7 @@ class KeepProcessor extends Remapper implements JarProcessor {
   public Set<String> getExcludes() {
     Set<String> closure = new HashSet<>();
     closureHelper(closure, roots);
-    Set<String> removable = new HashSet<>(depend.keySet());
+    Set<String> removable = new HashSet<>(entries);
     removable.removeAll(closure);
     return removable;
   }
@@ -72,16 +72,21 @@ class KeepProcessor extends Remapper implements JarProcessor {
   public boolean process(EntryStruct struct) throws IOException {
     try {
       if (struct.isClass()) {
-        String name = struct.name.substring(0, struct.name.length() - 6);
+        String entryName = struct.name.substring(0, struct.name.length() - 6);
+        String className = struct.className();
+        entries.add(entryName);
         for (Wildcard wildcard : wildcards) {
-          if (wildcard.matches(name)) {
-            roots.add(name);
+          if (wildcard.matches(className)) {
+            roots.add(className);
           }
         }
-        depend.put(name, curSet = new HashSet<>());
+        curSet = depend.computeIfAbsent(entryName, k -> new HashSet<>());
+        if (!entryName.equals(className)) {
+          depend.computeIfAbsent(className, k -> new HashSet<>()).add(entryName);
+        }
         new ClassReader(new ByteArrayInputStream(struct.data))
             .accept(cv, ClassReader.EXPAND_FRAMES);
-        curSet.remove(name);
+        curSet.remove(className);
       }
     } catch (Exception e) {
       System.err.println("Error reading " + struct.name + ": " + e.getMessage());

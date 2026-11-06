@@ -30,9 +30,8 @@ class ZapProcessor implements JarProcessor {
 
   @Override
   public boolean process(EntryStruct struct) throws IOException {
-    String name = struct.name;
     if (struct.isClass()) {
-      return !zap(name.substring(0, name.length() - 6));
+      return !zap(struct.className());
     }
     return true;
   }
