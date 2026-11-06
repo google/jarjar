@@ -21,6 +21,7 @@ import com.tonicsystems.jarjar.util.JarProcessor;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
 final class ManifestProcessor implements JarProcessor {
@@ -44,21 +45,36 @@ final class ManifestProcessor implements JarProcessor {
       return false; // Remove the manifest from the JAR
     }
 
+    // Avoid re-serializing unchanged manifests, which re-wraps lines and alters line endings.
     Manifest manifest = new Manifest(new ByteArrayInputStream(struct.data));
-    remapAttributeValue(manifest, "Main-Class");
-    struct.data = serializeManifest(manifest);
+    if (remapAttributeValue(manifest, "Main-Class")) {
+      struct.data = serializeManifest(manifest);
+    }
 
     return true;
   }
 
-  private void remapAttributeValue(Manifest manifest, String name) {
+  private boolean remapAttributeValue(Manifest manifest, String name) {
     String value = manifest.getMainAttributes().getValue(name);
-    if (value != null) {
-      manifest.getMainAttributes().putValue(name, (String) pr.mapValue(value));
+    if (value == null) {
+      return false;
     }
+    String remapped = (String) pr.mapValue(value);
+    if (remapped.equals(value)) {
+      return false;
+    }
+    manifest.getMainAttributes().putValue(name, remapped);
+    return true;
   }
 
   private byte[] serializeManifest(Manifest manifest) throws IOException {
+    Attributes mainAttributes = manifest.getMainAttributes();
+    // Attributes.writeMain silently omits all main attributes unless Manifest-Version or
+    // Signature-Version is set.
+    if (mainAttributes.getValue(Attributes.Name.MANIFEST_VERSION) == null
+        && mainAttributes.getValue(Attributes.Name.SIGNATURE_VERSION) == null) {
+      mainAttributes.put(Attributes.Name.MANIFEST_VERSION, "1.0");
+    }
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     manifest.write(baos);
     return baos.toByteArray();

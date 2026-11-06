@@ -56,7 +56,9 @@ final class MainProcessor implements JarProcessor {
     kp = keepList.isEmpty() ? null : new KeepProcessor(keepList);
 
     List<JarProcessor> processors = new ArrayList<>();
-    processors.add(new ManifestProcessor(pr, skipManifest));
+    if (skipManifest || !ruleList.isEmpty()) {
+      processors.add(new ManifestProcessor(pr, skipManifest));
+    }
     if (kp != null) {
       processors.add(kp);
     }
